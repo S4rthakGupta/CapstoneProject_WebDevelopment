@@ -1,5 +1,7 @@
 import React from 'react';
 import '../styles/Home.css';
+import placeholderImage from '../images/placeholder-image.png'; // Import the image
+
 
 const Home = () => {
     return (
@@ -19,7 +21,7 @@ const Home = () => {
                 </div>
             </div>
             <div className="home-image">
-                <img src="/placeholder-image.png" alt="Marketplace Preview" />
+                <img src={placeholderImage} alt="Marketplace Preview" />
             </div>
         </div>
     );

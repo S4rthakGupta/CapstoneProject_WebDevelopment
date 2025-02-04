@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import API from '../api';
+import '../styles/Login.css'; // Import the CSS file
 
 const Login = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ username: '', password: '' });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,13 +21,18 @@ const Login = () => {
     };
 
     return (
-        <div className="container">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-                <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
-                <button type="submit">Login</button>
-            </form>
+        <div className="login-container">
+            <div className="login-box">
+                <h2 className="login-title">LOGIN</h2>
+                <form onSubmit={handleSubmit}>
+                    <input type="text" name="username" placeholder="USERNAME" className="login-input" onChange={handleChange} required />
+                    <input type="password" name="password" placeholder="PASSWORD" className="login-input" onChange={handleChange} required />
+                    <div className="login-buttons">
+                        <button className="register-btn">REGISTER NOW!</button>
+                        <button type="submit" className="login-btn">Login</button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

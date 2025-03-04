@@ -1,13 +1,48 @@
-import { Button } from "@/components/ui/button"; // ✅ Correct import
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold">Welcome to the Marketplace</h1>
-      <p className="text-lg text-gray-600 mt-2">Find the best products here!</p>
-      <div className="mt-6">
-        <Button variant="default">Explore Marketplace</Button>
-      </div>
-    </main>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+
+      {/* Main Content */}
+      <main className="flex-grow flex flex-col items-center justify-center px-8 py-16">
+        <section className="flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto">
+          {/* Left Content */}
+          <div className="md:w-1/2 space-y-6">
+            <h2 className="text-4xl font-bold text-gray-800">
+              CampuSynergy <br />
+              <span className="text-blue-600">SAFE DEALS FOR STUDENTS!</span>
+            </h2>
+            <p className="text-gray-600">
+              Welcome to <span className="font-bold text-blue-700">CampusSynergy</span>, the ultimate safe marketplace designed exclusively for students. Here, you can buy, sell, and exchange items within a trusted community where every user is verified through their student ID.
+            </p>
+            <p className="text-gray-600">
+              Whether you’re looking for textbooks, dorm essentials, or unique finds, <span className="font-bold text-blue-700">CampusSynergy</span> is your one-stop shop for all your campus needs. Join today and experience a marketplace built for students, by students.
+            </p>
+
+            {/* Buttons */}
+            <div className="space-x-4">
+              <Button className="px-6 py-3 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-800">
+                REGISTER NOW!
+              </Button>
+              <Button variant="outline">Login</Button>
+            </div>
+          </div>
+
+          {/* Right Image Placeholder */}
+          <div className="md:w-1/2 flex justify-center">
+            <div className="w-80 h-80 bg-gray-300 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500">[Image Placeholder]</span>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }

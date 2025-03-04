@@ -1,6 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
+
+
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.container {
+  @apply max-w-6xl mx-auto px-6;
+}
+
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,13 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import API from "../api";
 import "../styles/Login.css"; // Import the CSS file
 
 const Login = () => {
-<<<<<<< HEAD
-    const [formData, setFormData] = useState({ email: '', password: '' });
-=======
-  const [formData, setFormData] = useState({ username: "", password: "" });
->>>>>>> login-setup
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const navigate = useNavigate(); // Initialize navigation
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,6 +17,9 @@ const Login = () => {
       const { data } = await API.post("/users/login", formData);
       alert("✅ Login successful!");
       localStorage.setItem("token", data.token);
+
+      // Redirect to Marketplace after successful login
+      navigate("/marketplace");
     } catch (error) {
       console.error(
         "❌ Login failed:",
@@ -27,36 +28,7 @@ const Login = () => {
     }
   };
 
-<<<<<<< HEAD
-    return (
-        <div className="login-container">
-            <div className="login-box">
-                <h2 className="login-title">LOGIN</h2>
-                <form onSubmit={handleSubmit}>
-                    <input type="text" name="email" placeholder="email" className="login-input" onChange={handleChange} required />
-                    <input type="password" name="password" placeholder="PASSWORD" className="login-input" onChange={handleChange} required />
-                    <div className="login-buttons">
-                        <button className="register-btn">REGISTER NOW!</button>
-                        <button type="submit" className="login-btn">Login</button>
-                    </div>
-                </form>
-            </div>
-=======
   return (
-    // <div className="login-container">
-    //     <div className="login-box">
-    //         <h2 className="login-title">LOGIN</h2>
-    //         <form onSubmit={handleSubmit}>
-    //             <input type="text" name="username" placeholder="USERNAME" className="login-input" onChange={handleChange} required />
-    //             <input type="password" name="password" placeholder="PASSWORD" className="login-input" onChange={handleChange} required />
-    //             <div className="login-buttons">
-    //                 {/* <button className="register-btn">REGISTER NOW!</button> */}
-    //                 <button type="submit" className="login-btn">Login</button>
-    //             </div>
-    //         </form>
-    //     </div>
-    // </div>
-
     <div className="login-container">
       <div className="background">
         <div className="shape"></div>
@@ -65,12 +37,12 @@ const Login = () => {
       <form onSubmit={handleSubmit}>
         <h3>Already a User?</h3>
 
-        <label htmlFor="username">Username</label>
+        <label htmlFor="email">Email</label>
         <input
-          type="text"
-          name="username"
-          placeholder="Email or Phone"
-          id="username"
+          type="email"
+          name="email"
+          placeholder="Email"
+          id="email"
           onChange={handleChange}
           required
         />
@@ -93,7 +65,6 @@ const Login = () => {
           <div className="fb">
             <i className="fab fa-facebook"></i> Facebook
           </div>
->>>>>>> login-setup
         </div>
       </form>
     </div>

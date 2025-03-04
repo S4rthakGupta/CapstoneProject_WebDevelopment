@@ -3,7 +3,7 @@ import API from '../api';
 import '../styles/Login.css'; // Import the CSS file
 
 const Login = () => {
-    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [formData, setFormData] = useState({ email: '', password: '' });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,7 +25,7 @@ const Login = () => {
             <div className="login-box">
                 <h2 className="login-title">LOGIN</h2>
                 <form onSubmit={handleSubmit}>
-                    <input type="text" name="username" placeholder="USERNAME" className="login-input" onChange={handleChange} required />
+                    <input type="text" name="email" placeholder="email" className="login-input" onChange={handleChange} required />
                     <input type="password" name="password" placeholder="PASSWORD" className="login-input" onChange={handleChange} required />
                     <div className="login-buttons">
                         <button className="register-btn">REGISTER NOW!</button>

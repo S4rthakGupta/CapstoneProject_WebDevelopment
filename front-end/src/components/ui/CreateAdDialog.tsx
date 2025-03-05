@@ -1,0 +1,79 @@
+"use client";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => void }) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setImageFile(event.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    let uploadedImageUrl = imageUrl;
+
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        alert("Image upload failed.");
+        return;
+      }
+
+      const uploadData = await uploadRes.json();
+      uploadedImageUrl = uploadData.url;
+    }
+
+    const newAd = { name, description, price, image: uploadedImageUrl };
+
+    const response = await fetch("/api/products", {
+      method: "POST",
+      body: JSON.stringify(newAd),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (response.ok) {
+      onAdCreated();
+      setName("");
+      setDescription("");
+      setPrice("");
+      setImageFile(null);
+      setImageUrl("");
+    } else {
+      alert("Failed to create ad.");
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-600 text-white">Create an Ad</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create a New Listing</DialogTitle>
+        </DialogHeader>
+        <Input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Input placeholder="Price ($)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+        <input type="file" onChange={handleFileChange} accept="image/*" />
+        <Button onClick={handleSubmit} className="bg-green-600 text-white">Post Ad</Button>
+      </DialogContent>
+    </Dialog>
+  );
+}

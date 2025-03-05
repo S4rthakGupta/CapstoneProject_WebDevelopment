@@ -1,8 +1,13 @@
+"use client";
+
+import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const { isSignedIn, user } = useUser(); // Clerk's user authentication hook
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -23,12 +28,29 @@ export default function Home() {
               Whether you’re looking for textbooks, dorm essentials, or unique finds, <span className="font-bold text-blue-700">CampusSynergy</span> is your one-stop shop for all your campus needs. Join today and experience a marketplace built for students, by students.
             </p>
 
-            {/* Buttons */}
+            {/* Conditional Rendering Based on Authentication */}
             <div className="space-x-4">
-              <Button className="px-6 py-3 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-800">
-                REGISTER NOW!
-              </Button>
-              <Button variant="outline">Login</Button>
+              {isSignedIn ? (
+                <>
+                  <p className="text-lg font-semibold text-blue-700">
+                    Hello, {user?.firstName}! 🎉
+                  </p>
+                  <SignOutButton>
+                    <Button variant="outline">Logout</Button>
+                  </SignOutButton>
+                </>
+              ) : (
+                <>
+                  <SignInButton mode="modal">
+                    <Button className="px-6 py-3 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-800">
+                      REGISTER NOW!
+                    </Button>
+                  </SignInButton>
+                  <SignInButton mode="modal">
+                    <Button variant="outline">Login</Button>
+                  </SignInButton>
+                </>
+              )}
             </div>
           </div>
 

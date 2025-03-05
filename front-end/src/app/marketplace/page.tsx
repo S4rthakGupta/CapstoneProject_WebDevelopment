@@ -1,9 +1,4 @@
-"use client";
-import { useEffect, useState } from "react";
-import CreateAdDialog from "@/components/ui/CreateAdDialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import ChatComponent from "@/components/ui/ChatComponent"; // Import the Chat Component
+
 
 export default function Marketplace() {
   const [ads, setAds] = useState<any[]>([]);

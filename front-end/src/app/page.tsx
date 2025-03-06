@@ -61,7 +61,7 @@ export default function Home() {
               alt="CampusSynergy"
               className="w-80 h-80 rounded-full object-cover shadow-lg"
               style={{
-                animation: "bounceSlow 1.5s ease-in-out infinite",
+                animation: "bounceSlow 2s ease-in-out infinite",
               }}
             />
           </div>

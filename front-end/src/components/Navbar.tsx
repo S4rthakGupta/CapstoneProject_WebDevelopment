@@ -6,16 +6,16 @@ import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between p-4 bg-white shadow-md">
+    <nav className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg rounded-b-lg">
       {/* Logo */}
       <Logo />
 
       {/* Navigation Links */}
-      <div className="space-x-4">
-        <Link href="/" className="text-gray-700 hover:text-blue-500">
+      <div className="hidden md:flex space-x-6">
+        <Link href="/" className="hover:text-gray-200 transition duration-300">
           Home
         </Link>
-        <Link href="/marketplace" className="text-gray-700 hover:text-blue-500">
+        <Link href="/marketplace" className="hover:text-gray-200 transition duration-300">
           Marketplace
         </Link>
       </div>
@@ -24,7 +24,9 @@ export default function Navbar() {
       <div className="flex items-center space-x-4">
         <SignedOut>
           <SignInButton mode="modal">
-            <button className="text-gray-700 hover:text-blue-500">Login</button>
+            <button className="bg-white text-blue-700 px-4 py-2 rounded-lg shadow-md hover:bg-gray-100 transition">
+              Login
+            </button>
           </SignInButton>
         </SignedOut>
 

@@ -59,7 +59,10 @@ export default function Home() {
             <img
               src="/images/placeholder.jpg"
               alt="CampusSynergy"
-              className="w-80 h-80 rounded-full object-cover shadow-lg animate-float"
+              className="w-80 h-80 rounded-full object-cover shadow-lg"
+              style={{
+                animation: "bounceSlow 1.5s ease-in-out infinite",
+              }}
             />
           </div>
         </section>

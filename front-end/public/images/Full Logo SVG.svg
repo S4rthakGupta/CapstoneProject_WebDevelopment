@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2902.41 971.36">
+  <defs>
+    <style>
+      .cls-1 {
+        font-family: Inter-ExtraBoldItalic, Inter;
+        font-size: 371.05px;
+        font-variation-settings: 'wght' 800, 'slnt' -10;
+        font-weight: 700;
+      }
+
+      .cls-1, .cls-2 {
+        font-style: italic;
+      }
+
+      .cls-1, .cls-3 {
+        fill: #18206f;
+      }
+
+      .cls-2 {
+        font-family: Inter-SemiBoldItalic, Inter;
+        font-size: 335.14px;
+        font-variation-settings: 'wght' 600, 'slnt' -10;
+        font-weight: 600;
+      }
+
+      .cls-2, .cls-4 {
+        fill: #91dce5;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <g>
+        <polygon class="cls-4" points="1473.23 1.08 1425.17 132.56 1228.49 131.99 1197.88 215.72 1149.85 347.2 1038.45 651.96 990.39 783.41 856.55 782.91 762.71 782.52 810.76 651.04 904.6 651.42 1015.98 346.66 1064.03 215.18 1094.64 131.45 1142.7 0 1276.55 .54 1473.23 1.08"/>
+        <polygon class="cls-3" points="970.19 214.82 922.14 346.27 826.53 345.88 180.05 343.31 291.75 648.97 715.13 650.68 667.07 782.13 339.96 780.81 208.08 780.27 159.91 648.43 48.18 342.77 0 210.93 131.84 211.44 874.59 214.43 970.19 214.82"/>
+        <circle class="cls-3" cx="563.78" cy="905.53" r="65.83"/>
+        <circle class="cls-3" cx="327.39" cy="905.53" r="65.83"/>
+      </g>
+      <text class="cls-2" transform="translate(1121.06 787.31)"><tspan x="0" y="0">SYNERGY</tspan></text>
+      <text class="cls-1" transform="translate(1235.35 459.95)"><tspan x="0" y="0">CAMPUS</tspan></text>
+    </g>
+  </g>
+</svg>

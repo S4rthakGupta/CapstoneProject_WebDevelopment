@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-<<<<<<< Updated upstream
 import ChatComponent from "@/components/ui/ChatComponent"; // Import the Chat Component
 import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
@@ -43,11 +42,6 @@ const products = [
     image: "/images/keyboard.webp",
   },
 ];
-=======
-import ChatComponent from "@/components/ui/ChatComponent"; 
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
->>>>>>> Stashed changes
 
 export default function Marketplace() {
   const [ads, setAds] = useState<any[]>([]);
@@ -65,7 +59,6 @@ export default function Marketplace() {
     }
     fetchAds();
   }, []);
-<<<<<<< Updated upstream
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navbar */}
@@ -134,77 +127,14 @@ export default function Marketplace() {
                   </Button>
                 )}
               </CardFooter>
-=======
-
-  // Filter Ads by Category
-  useEffect(() => {
-    if (category === "All") {
-      setFilteredAds(ads);
-    } else {
-      setFilteredAds(ads.filter((ad) => ad.category === category));
-    }
-  }, [category, ads]);
-
-  return (
-    <>
-      <Navbar />
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Marketplace</h1>
-        <CreateAdDialog onAdCreated={() => window.location.reload()} />
-
-        {/* Filter Dropdown */}
-        <div className="mb-4">
-          <label className="mr-2">Filter by Category:</label>
-          <select
-            onChange={(e) => setCategory(e.target.value)}
-            value={category}
-            className="p-2 border rounded"
-          >
-            <option value="All">All</option>
-            <option value="Cars">Cars</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Furniture">Furniture</option>
-            <option value="Books">Books</option>
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {filteredAds.map((ad) => (
-            <Card key={ad._id} className="shadow-lg border">
-              <CardHeader>
-                <CardTitle>{ad.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <img src={ad.image} alt={ad.name} className="w-full h-40 object-cover mb-2 rounded-lg" />
-                <p>{ad.description}</p>
-                <p className="font-bold text-blue-700">${ad.price}</p>
-                <p className="text-gray-500">{ad.category}</p>
-
-                {/* Chat Button */}
-                <Button
-                  onClick={() => {
-                    setChatOpen(true);
-                    setSelectedUser(ad.seller || "Unknown Seller");
-                  }}
-                  className="mt-4 bg-green-600 text-white"
-                >
-                  Chat with Seller
-                </Button>
-              </CardContent>
->>>>>>> Stashed changes
             </Card>
           ))}
         </div>
       </div>
       {chatOpen && <ChatComponent sender="Buyer" receiver={selectedUser} />}
-<<<<<<< Updated upstream
 
       {/* Footer */}
       <Footer />
     </div>
-=======
-      <Footer />
-    </>
->>>>>>> Stashed changes
   );
 }

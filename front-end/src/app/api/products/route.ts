@@ -10,10 +10,17 @@ export async function GET() {
 
 export async function POST(req: Request) {
   await connectToDatabase();
-  const { name, description, price, image } = await req.json();
+  const { name, description, price, image, category, condition, location } = await req.json();
 
-  const newProduct = new Product({ name, description, price, image });
-  await newProduct.save();
+  const newProduct = new Product({
+    name,
+    description,
+    price,
+    image,
+    category,
+    condition,
+    location,
+  }); await newProduct.save();
 
   return NextResponse.json(newProduct, { status: 201 });
 }

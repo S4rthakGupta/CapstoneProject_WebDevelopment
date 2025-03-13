@@ -50,7 +50,7 @@ export default function Marketplace() {
 
   useEffect(() => {
     async function fetchAds() {
-      const res = await fetch("/api/products");
+      const res = await fetch("/api/ads");
       const data = await res.json();
       setAds(data);
     }
@@ -95,8 +95,7 @@ export default function Marketplace() {
                   <Image
                     src={item.image}
                     alt={item.name}
-                    layout="fill"
-                    objectFit="cover"
+                    fill
                     className="rounded-md"
                   />
                 </div>
@@ -120,9 +119,10 @@ export default function Marketplace() {
                   </Button>
                 ) : (
                   <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">
-                    Add to Cart
+                    Save to Wishlist
                   </Button>
                 )}
+                
               </CardFooter>
             </Card>
           ))}

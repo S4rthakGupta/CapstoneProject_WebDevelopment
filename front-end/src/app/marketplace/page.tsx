@@ -44,14 +44,15 @@ export default function Marketplace() {
     if (category) filtered = filtered.filter((ad) => ad.category === category);
     if (condition) filtered = filtered.filter((ad) => ad.condition === condition);
     if (location) filtered = filtered.filter((ad) =>
-      ad.location.toLowerCase().includes(location.toLowerCase())
+      (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
     );
     if (searchQuery) filtered = filtered.filter((ad) =>
-      ad.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     );
 
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
+
 
   return (
     <div className="min-h-screen bg-gray-100">

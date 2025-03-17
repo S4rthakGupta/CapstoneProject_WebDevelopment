@@ -30,7 +30,7 @@ export default function Marketplace() {
   // Fetch Ads from DB
   useEffect(() => {
     async function fetchAds() {
-      const res = await fetch("/api/products");
+      const res = await fetch("/api/ads");
       const data = await res.json();
       setAds(data);
     }

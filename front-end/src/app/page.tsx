@@ -1,8 +1,8 @@
 "use client";
 
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+// import Navbar from "@/components/Navbar";
+// import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      {/* <Navbar /> */}
 
       {/* Main Content */}
       <main className="flex-grow flex flex-col items-center justify-center px-8 py-16">
@@ -69,7 +69,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

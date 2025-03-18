@@ -1,11 +1,28 @@
+"use client";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-
-export default function CreateAdDialog({ onAdCreated }) {
+export default function CreateAdDialog({
+  onAdCreated,
+}: {
+  onAdCreated: () => void;
+}) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -22,21 +39,35 @@ export default function CreateAdDialog({ onAdCreated }) {
   };
 
   const handleSubmit = async () => {
-    setError(""); // Reset errors
+    let uploadedImageUrl = imageUrl;
 
-    // 🛑 Validation: Ensure all fields are filled
-    if (!name || !description || !price || !image || !category) {
-      setError("🚨 All fields are required.");
-      return;
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        alert("Image upload failed.");
+        return;
+      }
+
+      const uploadData = await uploadRes.json();
+      uploadedImageUrl = uploadData.url;
     }
 
-    // 🛑 Validation: Ensure price is a valid number
-    if (isNaN(price) || price <= 0) {
-      setError("🚨 Price must be a positive number.");
-      return;
-    }
-
-    const newAd = { name, description, price, image: uploadedImageUrl, category, condition, location };
+    const newAd = {
+      name,
+      description,
+      price,
+      image: uploadedImageUrl,
+      category,
+      condition,
+      location,
+    };
 
     const response = await fetch("/api/products", {
       method: "POST",
@@ -68,9 +99,22 @@ export default function CreateAdDialog({ onAdCreated }) {
         <DialogHeader>
           <DialogTitle>Create a New Listing</DialogTitle>
         </DialogHeader>
-        <Input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
-        <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <Input placeholder="Price ($)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+        <Input
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <Input
+          placeholder="Price ($)"
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
 
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
@@ -97,11 +141,17 @@ export default function CreateAdDialog({ onAdCreated }) {
           </SelectContent>
         </Select>
 
-        <Input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
+        <Input
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        />
 
         <input type="file" onChange={handleFileChange} accept="image/*" />
 
-        <Button onClick={handleSubmit} className="bg-green-600 text-white">Post Ad</Button>
+        <Button onClick={handleSubmit} className="bg-green-600 text-white">
+          Post Ad
+        </Button>
       </DialogContent>
     </Dialog>
   );

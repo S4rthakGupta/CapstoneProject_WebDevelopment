@@ -1,14 +1,25 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 export default function CreateAdDialog({ onAdCreated }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState("");
-  const [category, setCategory] = useState("Electronics"); // Default category
-  const [error, setError] = useState(""); // Error state
-  const [loading, setLoading] = useState(false); // Loading state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [location, setLocation] = useState("");
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setImageFile(event.target.files[0]);
+    }
+  };
 
   const handleSubmit = async () => {
     setError(""); // Reset errors
@@ -25,87 +36,73 @@ export default function CreateAdDialog({ onAdCreated }) {
       return;
     }
 
-    setLoading(true); // Show loading state
+    const newAd = { name, description, price, image: uploadedImageUrl, category, condition, location };
 
-    try {
-      const res = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description, price, image, category }),
-      });
+    const response = await fetch("/api/products", {
+      method: "POST",
+      body: JSON.stringify(newAd),
+      headers: { "Content-Type": "application/json" },
+    });
 
-      const result = await res.json();
-
-      if (res.ok) {
-        alert("✅ Ad posted successfully!");
-        setName("");
-        setDescription("");
-        setPrice("");
-        setImage("");
-        setCategory("Electronics"); // Reset fields
-        onAdCreated();
-      } else {
-        setError(`🚨 Error: ${result.error || "Something went wrong"}`);
-      }
-    } catch (err) {
-      setError("🚨 Failed to connect to server. Please try again.");
-    } finally {
-      setLoading(false); // Hide loading state
+    if (response.ok) {
+      onAdCreated();
+      setName("");
+      setDescription("");
+      setPrice("");
+      setImageFile(null);
+      setImageUrl("");
+      setCategory("");
+      setCondition("");
+      setLocation("");
+    } else {
+      alert("Failed to create ad.");
     }
   };
 
   return (
-    <div className="p-6 border rounded shadow-md bg-white">
-      <h2 className="text-xl font-bold mb-4">Create an Ad</h2>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-600 text-white">Create an Ad</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create a New Listing</DialogTitle>
+        </DialogHeader>
+        <Input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Input placeholder="Price ($)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
 
-      {/* 🔴 Show error message if validation fails */}
-      {error && <p className="text-red-600 mb-3">{error}</p>}
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Electronics">Electronics</SelectItem>
+            <SelectItem value="Clothing">Clothing</SelectItem>
+            <SelectItem value="Furniture">Furniture</SelectItem>
+            <SelectItem value="Books">Books</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
 
-      <input
-        type="text"
-        placeholder="Product Name"
-        className="border p-2 w-full mb-2"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <textarea
-        placeholder="Description (Max 200 characters)"
-        className="border p-2 w-full mb-2"
-        maxLength={200}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Price (in USD)"
-        className="border p-2 w-full mb-2"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Image URL (Must be a valid link)"
-        className="border p-2 w-full mb-2"
-        value={image}
-        onChange={(e) => setImage(e.target.value)}
-      />
+        <Select value={condition} onValueChange={setCondition}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Condition" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="New">New</SelectItem>
+            <SelectItem value="Used - Like New">Used - Like New</SelectItem>
+            <SelectItem value="Used - Good">Used - Good</SelectItem>
+            <SelectItem value="Used - Fair">Used - Fair</SelectItem>
+          </SelectContent>
+        </Select>
 
-      {/* Category Selection */}
-      <select
-        className="border p-2 w-full mb-4"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      >
-        <option value="Electronics">Electronics</option>
-        <option value="Cars">Cars</option>
-        <option value="Furniture">Furniture</option>
-        <option value="Books">Books</option>
-      </select>
+        <Input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
 
-      {/* Post Ad Button (Disabled While Loading) */}
-      <Button onClick={handleSubmit} className="bg-blue-600 text-white w-full" disabled={loading}>
-        {loading ? "Posting..." : "Post Ad"}
-      </Button>
-    </div>
+        <input type="file" onChange={handleFileChange} accept="image/*" />
+
+        <Button onClick={handleSubmit} className="bg-green-600 text-white">Post Ad</Button>
+      </DialogContent>
+    </Dialog>
   );
 }

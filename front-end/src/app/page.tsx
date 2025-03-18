@@ -56,9 +56,14 @@ export default function Home() {
 
           {/* Right Image Placeholder */}
           <div className="md:w-1/2 flex justify-center">
-            <div className="w-80 h-80 bg-gray-300 rounded-lg flex items-center justify-center">
-              <span className="text-gray-500">[Image Placeholder]</span>
-            </div>
+            <img
+              src="/images/placeholder.jpg"
+              alt="CampusSynergy"
+              className="w-80 h-80 rounded-full object-cover shadow-lg"
+              style={{
+                animation: "bounceSlow 2s ease-in-out infinite",
+              }}
+            />
           </div>
         </section>
       </main>

@@ -12,6 +12,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.json(products);
   }
 
+export async function POST(req: Request) {
+  await connectToDatabase();
+  const { name, description, price, image, category, condition, location } = await req.json();
+
+  const newProduct = new Product({
+    name,
+    description,
+    price,
+    image,
+    category,
+    condition,
+    location,
+  }); await newProduct.save();
   if (req.method === "POST") {
     const { name, description, price, image, category } = req.body;
     const newProduct = new Product({ name, description, price, image, category });

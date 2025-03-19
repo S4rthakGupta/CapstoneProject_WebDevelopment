@@ -1,55 +1,38 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import ChatComponent from "@/components/ui/ChatComponent";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { connectToDatabase } from "@/lib/mongodb";
+import { Ad as AdModel } from "@/lib/models/Ads"; // ✅ Renamed to avoid conflict
+import { currentUser } from "@clerk/nextjs/server";
 
-export default function SellerProfile() {
-  const { sellerId } = useParams(); // Extracts the seller's ID from the URL
-  const [ads, setAds] = useState([]);
-  const [sellerInfo, setSellerInfo] = useState(null);
+export default async function SellerPage() {
+  await connectToDatabase();
+  const user = await currentUser();
 
-  useEffect(() => {
-    async function fetchSellerData() {
-      // Fetch seller's listings
-      const res = await fetch(`/api/products?sellerId=${sellerId}`);
-      const data = await res.json();
-      setAds(data);
+  if (!user) {
+    return <p>Please login to see your ads.</p>;
+  }
 
-      // Fetch seller's information
-      const sellerRes = await fetch(`/api/users/${sellerId}`);
-      const sellerData = await sellerRes.json();
-      setSellerInfo(sellerData);
-    }
-
-    fetchSellerData();
-  }, [sellerId]);
+  const ads = await AdModel.find({ userId: user.id }).sort({ createdAt: -1 }).lean();
 
   return (
-    <div className="p-6">
-      {sellerInfo && (
-        <h1 className="text-2xl font-bold mb-4">Listings by {sellerInfo.name}</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">My Listings</h1>
+      {ads.length > 0 ? (
+        ads.map((ad: any) => (
+          <div key={ad._id} className="p-4 border rounded-lg mb-4 shadow-md">
+            <h2 className="text-xl font-semibold">{ad.title}</h2>
+            <p>{ad.description}</p>
+            <p className="font-bold">${ad.price}</p>
+            {ad.image && (
+              <img
+                src={ad.image}
+                alt={ad.title}
+                className="w-full h-48 object-cover rounded-md mt-2"
+              />
+            )}
+          </div>
+        ))
+      ) : (
+        <p>You have not posted any ads yet.</p>
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {ads.map((ad) => (
-          <Card key={ad._id}>
-            <CardHeader>
-              <CardTitle>{ad.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <img src={ad.image} alt={ad.name} className="w-full h-40 object-cover mb-2" />
-              <p>{ad.description}</p>
-              <p className="font-bold">${ad.price}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Chat Box */}
-      <div className="mt-6">
-        <ChatComponent sellerId={sellerId} />
-      </div>
     </div>
   );
 }

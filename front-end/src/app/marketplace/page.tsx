@@ -30,7 +30,7 @@ export default function Marketplace() {
   // Fetch Ads from DB
   useEffect(() => {
     async function fetchAds() {
-      const res = await fetch("/api/products");
+      const res = await fetch("/api/ads");
       const data = await res.json();
       setAds(data);
     }
@@ -76,44 +76,56 @@ export default function Marketplace() {
         </div>
       </section>
 
-      {/* Filter Section */}
-      <div className="container mx-auto px-6 py-6 space-y-4">
-        <h3 className="text-xl font-semibold">Filter Listings</h3>
-        <div className="flex flex-wrap gap-4 p-4 bg-white rounded-xl shadow-sm border">
-          {/* Category Dropdown */}
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700"
-          >
-            <option value="">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Furniture">Furniture</option>
-            <option value="Books">Books</option>
-            <option value="Other">Other</option>
-          </select>
-
-          {/* Condition Dropdown */}
-          <select
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700"
-          >
-            <option value="">All Conditions</option>
-            <option value="New">New</option>
-            <option value="Used - Like New">Used - Like New</option>
-            <option value="Used - Good">Used - Good</option>
-            <option value="Used - Fair">Used - Fair</option>
-          </select>
-
-          {/* Location Input */}
-          <Input
-            placeholder="Filter by Location..."
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto flex-1"
-          />
+      {/* Unified Product Grid (Listed Products + Ads) */}
+      <div className="container mx-auto px-6 py-10">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Available Products
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[...products, ...ads].map((item) => (
+            <Card
+              key={item.id || item._id}
+              className="shadow-lg border rounded-lg"
+            >
+              <CardHeader>
+                <CardTitle className="text-lg">{item.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="w-full h-48 relative">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="rounded-md"
+                  />
+                </div>
+                {item.description && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    {item.description}
+                  </p>
+                )}
+                <p className="mt-2 font-bold text-blue-700">${item.price}</p>
+              </CardContent>
+              <CardFooter className="p-4">
+                {item.seller ? (
+                  <Button
+                    onClick={() => {
+                      setChatOpen(true);
+                      setSelectedUser(item.seller || "Unknown Seller");
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Chat with Seller
+                  </Button>
+                ) : (
+                  <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">
+                    Save to Wishlist
+                  </Button>
+                )}
+                
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </div>
 

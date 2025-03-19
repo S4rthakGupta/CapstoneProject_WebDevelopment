@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -18,12 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function CreateAdDialog({
-  onAdCreated,
-}: {
-  onAdCreated: () => void;
-}) {
-  const [name, setName] = useState("");
+export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => void }) {
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -34,12 +31,14 @@ export default function CreateAdDialog({
 
   const { user } = useUser();
 
+  // ✅ Handle File Selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setImageFile(event.target.files[0]);
     }
   };
 
+  // ✅ Handle Form Submission
   const handleSubmit = async () => {
     if (!user) {
       alert("Please login to post an ad!");
@@ -49,46 +48,58 @@ export default function CreateAdDialog({
     setIsLoading(true);
     let uploadedImageUrl = "";
 
+    // ✅ Upload image if selected
     if (imageFile) {
       const formData = new FormData();
       formData.append("file", imageFile);
 
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!uploadRes.ok) {
-        alert("Image upload failed.");
+        if (!uploadRes.ok) {
+          throw new Error("Image upload failed.");
+        }
+
+        const uploadData = await uploadRes.json();
+        uploadedImageUrl = uploadData.url;
+      } catch (error) {
+        alert(error.message);
         setIsLoading(false);
         return;
       }
-
-      const uploadData = await uploadRes.json();
-      uploadedImageUrl = uploadData.url;
     }
 
+    // ✅ Construct new Ad object
     const newAd = {
-      name,
+      title,
       description,
       price,
       image: uploadedImageUrl,
       category,
       condition,
       location,
+      username: user.fullName, // Save user's name
     };
 
-    const response = await fetch("/api/ads", {
-      method: "POST",
-      body: JSON.stringify(newAd),
-      headers: { "Content-Type": "application/json" },
-    });
+    // ✅ Send Ad data to backend
+    try {
+      const response = await fetch("/api/ads", {
+        method: "POST",
+        body: JSON.stringify(newAd),
+        headers: { "Content-Type": "application/json" },
+      });
 
-    setIsLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to create ad.");
+      }
 
-    if (response.ok) {
       alert("Ad posted successfully!");
       onAdCreated();
+
+      // ✅ Reset form fields
       setTitle("");
       setDescription("");
       setPrice("");
@@ -96,8 +107,10 @@ export default function CreateAdDialog({
       setCategory("");
       setCondition("");
       setLocation("");
-    } else {
-      alert("Failed to create ad.");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,10 +123,12 @@ export default function CreateAdDialog({
         <DialogHeader>
           <DialogTitle>Create a New Listing</DialogTitle>
         </DialogHeader>
+
+        {/* ✅ Input Fields */}
         <Input
-          placeholder="Product Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Product Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <Textarea
           placeholder="Description"
@@ -127,7 +142,7 @@ export default function CreateAdDialog({
           onChange={(e) => setPrice(e.target.value)}
         />
 
-        {/* ✅ Select for Category */}
+        {/* ✅ Category Selection */}
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
             <SelectValue placeholder="Select Category" />
@@ -141,7 +156,7 @@ export default function CreateAdDialog({
           </SelectContent>
         </Select>
 
-        {/* ✅ Select for Condition */}
+        {/* ✅ Condition Selection */}
         <Select value={condition} onValueChange={setCondition}>
           <SelectTrigger>
             <SelectValue placeholder="Select Condition" />
@@ -154,16 +169,29 @@ export default function CreateAdDialog({
           </SelectContent>
         </Select>
 
+        {/* ✅ Location Input */}
         <Input
           placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
 
-        <input type="file" onChange={handleFileChange} accept="image/*" />
+        {/* ✅ File Upload */}
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept="image/*"
+          disabled={isLoading}
+          className="mt-2"
+        />
 
-        <Button onClick={handleSubmit} className="bg-green-600 text-white">
-          Post Ad
+        {/* ✅ Submit Button */}
+        <Button
+          onClick={handleSubmit}
+          disabled={isLoading}
+          className="bg-green-600 text-white"
+        >
+          {isLoading ? "Posting..." : "Post Ad"}
         </Button>
       </DialogContent>
     </Dialog>

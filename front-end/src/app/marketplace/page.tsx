@@ -4,9 +4,6 @@ import CreateAdDialog from "@/components/ui/CreateAdDialog";
 import {
   Card,
   CardContent,
-  // CardFooter,
-  // CardHeader,
-  // CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +20,7 @@ export default function Marketplace() {
   const [location, setLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch Products & Ads from DB
+  // ✅ Fixing duplicate useEffect and syntax issues
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -34,13 +31,6 @@ export default function Marketplace() {
       } catch (error) {
         console.error("Error fetching products:", error);
       }
-  useEffect(() => {
-    async function fetchAds() {
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      setAds(data);
-      setFilteredAds(data);
-      console.log("ADS:", ads);
     }
 
     async function fetchAds() {
@@ -49,6 +39,7 @@ export default function Marketplace() {
         if (!res.ok) throw new Error("Failed to fetch ads");
         const data = await res.json();
         setAds(data);
+        setFilteredAds(data);
       } catch (error) {
         console.error("Error fetching ads:", error);
       }
@@ -58,19 +49,17 @@ export default function Marketplace() {
     fetchAds();
   }, []);
 
+  // ✅ Filtering logic
   useEffect(() => {
     let filtered = [...ads];
     if (category) filtered = filtered.filter((ad) => ad.category === category);
-    if (condition)
-      filtered = filtered.filter((ad) => ad.condition === condition);
-    if (location)
-      filtered = filtered.filter((ad) =>
-        (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
-      );
-    if (searchQuery)
-      filtered = filtered.filter((ad) =>
-        (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-      );
+    if (condition) filtered = filtered.filter((ad) => ad.condition === condition);
+    if (location) filtered = filtered.filter((ad) =>
+      (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
+    );
+    if (searchQuery) filtered = filtered.filter((ad) =>
+      (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+    );
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
 
@@ -134,28 +123,21 @@ export default function Marketplace() {
                 className="w-full h-40 object-cover rounded-t"
               />
               <CardContent className="p-4 flex flex-col flex-grow justify-between">
-                <div>
-                  <h3 className="font-semibold text-lg mb-1 truncate">
-                    {item.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 line-clamp-2">
-                    {item.description}
-                  </p>
-                  <p className="text-blue-700 font-bold mt-1">${item.price}</p>
-                  {item.location && (
-                    <p className="text-sm text-gray-500">📍 {item.location}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2 mt-4">
-                  <Link href={`/products/${item._id}`}>
-                    <Button variant="default" className="w-full">
-                      View Product
-                    </Button>
-                  </Link>
-                  <Button variant="outline" className="w-full">
-                    Add to Wishlist
+                <h3 className="font-semibold text-lg mb-1 truncate">
+                  {item.name}
+                </h3>
+                <p className="text-sm text-gray-500 line-clamp-2">
+                  {item.description}
+                </p>
+                <p className="text-blue-700 font-bold mt-1">${item.price}</p>
+                {item.location && (
+                  <p className="text-sm text-gray-500">📍 {item.location}</p>
+                )}
+                <Link href={`/products/${item._id}`}>
+                  <Button variant="default" className="w-full">
+                    View Product
                   </Button>
-                </div>
+                </Link>
               </CardContent>
             </Card>
           ))}

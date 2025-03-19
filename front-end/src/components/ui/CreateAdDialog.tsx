@@ -10,19 +10,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useUser } from "@clerk/nextjs";
-
-// ✅ Import Select from UI Components
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 
-export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => void }) {
-  const [title, setTitle] = useState("");
+export default function CreateAdDialog({
+  onAdCreated,
+}: {
+  onAdCreated: () => void;
+}) {
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -68,14 +69,13 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
     }
 
     const newAd = {
-      title,
+      name,
       description,
       price,
       image: uploadedImageUrl,
       category,
       condition,
       location,
-      username: user.fullName,
     };
 
     const response = await fetch("/api/ads", {
@@ -110,10 +110,22 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
         <DialogHeader>
           <DialogTitle>Create a New Listing</DialogTitle>
         </DialogHeader>
-
-        <Input placeholder="Product Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <Input placeholder="Price ($)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+        <Input
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <Input
+          placeholder="Price ($)"
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
 
         {/* ✅ Select for Category */}
         <Select value={category} onValueChange={setCategory}>
@@ -142,12 +154,16 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
           </SelectContent>
         </Select>
 
-        <Input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
+        <Input
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        />
 
         <input type="file" onChange={handleFileChange} accept="image/*" />
 
         <Button onClick={handleSubmit} className="bg-green-600 text-white">
-          {isLoading ? "Posting..." : "Post Ad"}
+          Post Ad
         </Button>
       </DialogContent>
     </Dialog>

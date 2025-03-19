@@ -4,25 +4,20 @@ import CreateAdDialog from "@/components/ui/CreateAdDialog";
 import {
   Card,
   CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+  // CardFooter,
+  // CardHeader,
+  // CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import ChatComponent from "@/components/ui/ChatComponent";
 import { Input } from "@/components/ui/input";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Marketplace() {
   const [products, setProducts] = useState<any[]>([]);
   const [ads, setAds] = useState<any[]>([]);
   const [filteredAds, setFilteredAds] = useState<any[]>([]);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState("");
 
-  // Filters
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [location, setLocation] = useState("");
@@ -39,6 +34,13 @@ export default function Marketplace() {
       } catch (error) {
         console.error("Error fetching products:", error);
       }
+  useEffect(() => {
+    async function fetchAds() {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setAds(data);
+      setFilteredAds(data);
+      console.log("ADS:", ads);
     }
 
     async function fetchAds() {
@@ -56,87 +58,109 @@ export default function Marketplace() {
     fetchAds();
   }, []);
 
-  // Filtering logic
   useEffect(() => {
     let filtered = [...ads];
-
     if (category) filtered = filtered.filter((ad) => ad.category === category);
-    if (condition) filtered = filtered.filter((ad) => ad.condition === condition);
-    if (location) filtered = filtered.filter((ad) =>
-      (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
-    );
-    if (searchQuery) filtered = filtered.filter((ad) =>
-      (ad.title?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-    );
-
+    if (condition)
+      filtered = filtered.filter((ad) => ad.condition === condition);
+    if (location)
+      filtered = filtered.filter((ad) =>
+        (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
+      );
+    if (searchQuery)
+      filtered = filtered.filter((ad) =>
+        (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+      );
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Navbar */}
-      <Navbar />
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <aside className="w-64 p-4 border-r bg-white">
+        <h2 className="text-xl font-semibold mb-4">Marketplace</h2>
+        <Input
+          placeholder="Search Marketplace"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="mb-4"
+        />
+        <label className="text-sm">Category</label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full mb-4 border rounded px-2 py-1"
+        >
+          <option value="">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Furniture">Furniture</option>
+          <option value="Books">Books</option>
+          <option value="Other">Other</option>
+        </select>
+        <label className="text-sm">Condition</label>
+        <select
+          value={condition}
+          onChange={(e) => setCondition(e.target.value)}
+          className="w-full mb-4 border rounded px-2 py-1"
+        >
+          <option value="">All Conditions</option>
+          <option value="New">New</option>
+          <option value="Used - Like New">Used - Like New</option>
+          <option value="Used - Good">Used - Good</option>
+          <option value="Used - Fair">Used - Fair</option>
+        </select>
+        <label className="text-sm">Location</label>
+        <Input
+          placeholder="Filter by Location..."
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="mb-4"
+        />
+        <CreateAdDialog onAdCreated={() => window.location.reload()} />
+      </aside>
 
-      {/* Hero Section */}
-      <section className="bg-blue-700 text-white py-16 text-center">
-        <h1 className="text-4xl font-bold">Find the Best Deals on Campus</h1>
-        <p className="mt-2 text-lg">Buy, sell, or rent items with ease.</p>
-        <div className="mt-6 max-w-md mx-auto space-y-2">
-          <Input
-            placeholder="Search for items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-white text-black"
-          />
-        </div>
-        <div className="mt-4">
-          <CreateAdDialog onAdCreated={() => window.location.reload()} />
-        </div>
-      </section>
-
-      {/* Unified Product Grid (Products + Ads) */}
-      <div className="container mx-auto px-6 py-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Products</h2>
+      {/* Main Grid */}
+      <main className="flex-1 p-6 bg-gray-100">
+        <h1 className="text-2xl font-bold mb-6">Today's Picks</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...products, ...filteredAds].map((item) => (
-            <Card key={item._id} className="shadow-lg border rounded-lg">
-              <CardHeader>
-                <CardTitle className="text-lg">{item.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="w-full h-48 relative">
-                  <Image src={item.image} alt={item.title} fill className="rounded-md" />
+          {filteredAds.map((item) => (
+            <Card key={item._id} className="flex flex-col">
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={400}
+                height={300}
+                className="w-full h-40 object-cover rounded-t"
+              />
+              <CardContent className="p-4 flex flex-col flex-grow justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg mb-1 truncate">
+                    {item.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-2">
+                    {item.description}
+                  </p>
+                  <p className="text-blue-700 font-bold mt-1">${item.price}</p>
+                  {item.location && (
+                    <p className="text-sm text-gray-500">📍 {item.location}</p>
+                  )}
                 </div>
-                {item.description && <p className="mt-2 text-sm text-gray-600">{item.description}</p>}
-                <p className="mt-2 font-bold text-blue-700">${item.price}</p>
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link href={`/products/${item._id}`}>
+                    <Button variant="default" className="w-full">
+                      View Product
+                    </Button>
+                  </Link>
+                  <Button variant="outline" className="w-full">
+                    Add to Wishlist
+                  </Button>
+                </div>
               </CardContent>
-              <CardFooter className="p-4">
-                {item.seller ? (
-                  <Button
-                    onClick={() => {
-                      setChatOpen(true);
-                      setSelectedUser(item.seller || "Unknown Seller");
-                    }}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    Chat with Seller
-                  </Button>
-                ) : (
-                  <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">
-                    Save to Wishlist
-                  </Button>
-                )}
-              </CardFooter>
             </Card>
           ))}
         </div>
-      </div>
-
-      {/* Chat Component */}
-      {chatOpen && <ChatComponent sender="Buyer" receiver={selectedUser} />}
-
-      {/* Footer */}
-      <Footer />
+      </main>
     </div>
   );
 }

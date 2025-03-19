@@ -11,4 +11,4 @@ const ProductSchema = new mongoose.Schema({
   location: { type: String, required: true },  // Add location
 }, { timestamps: true });
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
+export default mongoose.models.Product || mongoose.model("Product", ProductSchema);

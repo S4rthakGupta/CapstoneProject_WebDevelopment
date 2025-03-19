@@ -16,6 +16,7 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 
 export default function Marketplace() {
+  const [products, setProducts] = useState<any[]>([]);
   const [ads, setAds] = useState<any[]>([]);
   const [filteredAds, setFilteredAds] = useState<any[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -27,13 +28,31 @@ export default function Marketplace() {
   const [location, setLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch Ads from DB
+  // Fetch Products & Ads from DB
   useEffect(() => {
-    async function fetchAds() {
-      const res = await fetch("/api/ads");
-      const data = await res.json();
-      setAds(data);
+    async function fetchProducts() {
+      try {
+        const res = await fetch("/api/products");
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
     }
+
+    async function fetchAds() {
+      try {
+        const res = await fetch("/api/ads");
+        if (!res.ok) throw new Error("Failed to fetch ads");
+        const data = await res.json();
+        setAds(data);
+      } catch (error) {
+        console.error("Error fetching ads:", error);
+      }
+    }
+
+    fetchProducts();
     fetchAds();
   }, []);
 
@@ -47,12 +66,11 @@ export default function Marketplace() {
       (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
     );
     if (searchQuery) filtered = filtered.filter((ad) =>
-      (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+      (ad.title?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     );
 
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
-
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -76,34 +94,20 @@ export default function Marketplace() {
         </div>
       </section>
 
-      {/* Unified Product Grid (Listed Products + Ads) */}
+      {/* Unified Product Grid (Products + Ads) */}
       <div className="container mx-auto px-6 py-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Available Products
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...products, ...ads].map((item) => (
-            <Card
-              key={item.id || item._id}
-              className="shadow-lg border rounded-lg"
-            >
+          {[...products, ...filteredAds].map((item) => (
+            <Card key={item._id} className="shadow-lg border rounded-lg">
               <CardHeader>
-                <CardTitle className="text-lg">{item.name}</CardTitle>
+                <CardTitle className="text-lg">{item.title}</CardTitle>
               </CardHeader>
               <CardContent className="p-4">
                 <div className="w-full h-48 relative">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="rounded-md"
-                  />
+                  <Image src={item.image} alt={item.title} fill className="rounded-md" />
                 </div>
-                {item.description && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    {item.description}
-                  </p>
-                )}
+                {item.description && <p className="mt-2 text-sm text-gray-600">{item.description}</p>}
                 <p className="mt-2 font-bold text-blue-700">${item.price}</p>
               </CardContent>
               <CardFooter className="p-4">
@@ -122,65 +126,10 @@ export default function Marketplace() {
                     Save to Wishlist
                   </Button>
                 )}
-                
               </CardFooter>
             </Card>
           ))}
         </div>
-      </div>
-
-      {/* Product Grid */}
-      <div className="container mx-auto px-6 py-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Products</h2>
-
-        {filteredAds.length === 0 ? (
-          <p className="text-center text-gray-500">No products match your filters.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredAds.map((item) => (
-              <Card key={item._id} className="shadow-lg border rounded-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">{item.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="w-full h-48 relative">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      style={{ objectFit: "cover" }}
-                      className="rounded-md"
-                    />
-                  </div>
-                  {item.description && (
-                    <p className="mt-2 text-sm text-gray-600">{item.description}</p>
-                  )}
-                  <p className="mt-2 font-bold text-blue-700">${item.price}</p>
-                  {item.location && (
-                    <p className="mt-1 text-sm text-gray-500">📍 {item.location}</p>
-                  )}
-                </CardContent>
-                <CardFooter className="p-4">
-                  {item.seller ? (
-                    <Button
-                      onClick={() => {
-                        setChatOpen(true);
-                        setSelectedUser(item.seller || "Unknown Seller");
-                      }}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Chat with Seller
-                    </Button>
-                  ) : (
-                    <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">
-                      Add to Cart
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Chat Component */}

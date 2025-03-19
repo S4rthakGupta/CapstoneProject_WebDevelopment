@@ -12,16 +12,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@clerk/nextjs";
 
-export default function CreateAdDialog({
-  onAdCreated,
-}: {
-  onAdCreated: () => void;
-}) {
+// ✅ Import Select from UI Components
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
+export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => void }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [location, setLocation] = useState("");
@@ -44,7 +48,6 @@ export default function CreateAdDialog({
     setIsLoading(true);
     let uploadedImageUrl = "";
 
-    // Step 1: Upload image if available
     if (imageFile) {
       const formData = new FormData();
       formData.append("file", imageFile);
@@ -64,13 +67,14 @@ export default function CreateAdDialog({
       uploadedImageUrl = uploadData.url;
     }
 
-    const newAd = { name, description, price, image: uploadedImageUrl, category, condition, location };
-    // Step 2: Post the ad to MongoDB
     const newAd = {
-      title, // corrected name to title
+      title,
       description,
       price,
       image: uploadedImageUrl,
+      category,
+      condition,
+      location,
       username: user.fullName,
     };
 
@@ -84,13 +88,11 @@ export default function CreateAdDialog({
 
     if (response.ok) {
       alert("Ad posted successfully!");
-      onAdCreated(); // Refresh or re-fetch ads
-      // Reset form
+      onAdCreated();
       setTitle("");
       setDescription("");
       setPrice("");
       setImageFile(null);
-      setImageUrl("");
       setCategory("");
       setCondition("");
       setLocation("");
@@ -108,10 +110,12 @@ export default function CreateAdDialog({
         <DialogHeader>
           <DialogTitle>Create a New Listing</DialogTitle>
         </DialogHeader>
-        <Input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
+
+        <Input placeholder="Product Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
         <Input placeholder="Price ($)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
 
+        {/* ✅ Select for Category */}
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
             <SelectValue placeholder="Select Category" />
@@ -125,6 +129,7 @@ export default function CreateAdDialog({
           </SelectContent>
         </Select>
 
+        {/* ✅ Select for Condition */}
         <Select value={condition} onValueChange={setCondition}>
           <SelectTrigger>
             <SelectValue placeholder="Select Condition" />
@@ -141,40 +146,7 @@ export default function CreateAdDialog({
 
         <input type="file" onChange={handleFileChange} accept="image/*" />
 
-        <Button onClick={handleSubmit} className="bg-green-600 text-white">Post Ad</Button>
-
-        <Input
-          placeholder="Product Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={isLoading}
-        />
-        <Textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={isLoading}
-        />
-        <Input
-          placeholder="Price ($)"
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          disabled={isLoading}
-        />
-        <input
-          type="file"
-          onChange={handleFileChange}
-          accept="image/*"
-          disabled={isLoading}
-          className="mt-2"
-        />
-
-        <Button
-          onClick={handleSubmit}
-          disabled={isLoading}
-          className="bg-green-600 text-white"
-        >
+        <Button onClick={handleSubmit} className="bg-green-600 text-white">
           {isLoading ? "Posting..." : "Post Ad"}
         </Button>
       </DialogContent>

@@ -1,64 +1,70 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase"; // Import Firebase Config
-import { collection, addDoc, query, orderBy, onSnapshot } from "firebase/firestore";
+import { useUser } from "@clerk/nextjs";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function ChatComponent({ sender, receiver }: { sender: string; receiver: string }) {
-  const [messages, setMessages] = useState<any[]>([]);
+interface ChatComponentProps {
+  chatId: string;
+}
+
+export default function ChatComponent({ chatId }: ChatComponentProps) {
+  const { user } = useUser();
+  const [messages, setMessages] = useState<{ id: string; senderId: string; text: string; timestamp: any }[]>([]);
   const [newMessage, setNewMessage] = useState("");
 
   useEffect(() => {
-    if (!receiver) return;
+    if (!chatId) return;
 
-    const messagesRef = collection(db, "messages");
-    const q = query(messagesRef, orderBy("timestamp", "asc"));
+    const q = query(
+      collection(db, "messages"),
+      where("chatId", "==", chatId),
+      orderBy("timestamp", "asc")
+    );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedMessages = snapshot.docs.map((doc) => ({
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const msgs = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setMessages(fetchedMessages);
+      setMessages(msgs);
     });
 
     return () => unsubscribe();
-  }, [receiver]);
+  }, [chatId]);
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
     await addDoc(collection(db, "messages"), {
-      sender,
-      receiver,
+      chatId,
+      senderId: user?.id,
       text: newMessage,
-      timestamp: new Date(),
+      timestamp: serverTimestamp(), // ✅ Ensures messages are ordered correctly
     });
 
     setNewMessage("");
   };
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 w-80">
-      <h3 className="font-bold text-lg mb-2">Chat with {receiver}</h3>
-      <div className="h-40 overflow-y-auto border p-2 mb-2">
+    <div className="flex flex-col h-full p-4 border">
+      <div className="flex-1 overflow-y-auto">
         {messages.map((msg) => (
-          <p key={msg.id} className={msg.sender === sender ? "text-blue-600" : "text-gray-800"}>
-            <strong>{msg.sender}: </strong>
-            {msg.text}
-          </p>
+          <div key={msg.id} className={`p-2 ${msg.senderId === user?.id ? "text-right" : "text-left"}`}>
+            <span className={`inline-block px-3 py-1 rounded-lg ${msg.senderId === user?.id ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
+              {msg.text}
+            </span>
+          </div>
         ))}
       </div>
-      <input
-        type="text"
-        className="w-full border p-2 rounded mb-2"
-        placeholder="Type a message..."
-        value={newMessage}
-        onChange={(e) => setNewMessage(e.target.value)}
-      />
-      <Button onClick={sendMessage} className="w-full bg-blue-600 text-white">
-        Send
-      </Button>
+
+      <div className="flex mt-4">
+        <Input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." />
+        <Button onClick={sendMessage} className="ml-2">Send</Button>
+      </div>
     </div>
   );
 }

@@ -1,38 +1,28 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";  
 import CreateAdDialog from "@/components/ui/CreateAdDialog";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import ChatComponent from "@/components/ui/ChatComponent"; 
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Marketplace() {
-  const [products, setProducts] = useState<any[]>([]);
+  const { user } = useUser();  // ✅ Get logged-in user
   const [ads, setAds] = useState<any[]>([]);
   const [filteredAds, setFilteredAds] = useState<any[]>([]);
+  const [chatUser, setChatUser] = useState<string | null>(null);
 
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [location, setLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Fixing duplicate useEffect and syntax issues
+  // ✅ Fetch Ads from API
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const res = await fetch("/api/products");
-        if (!res.ok) throw new Error("Failed to fetch products");
-        const data = await res.json();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    }
-
     async function fetchAds() {
       try {
         const res = await fetch("/api/ads");
@@ -45,7 +35,6 @@ export default function Marketplace() {
       }
     }
 
-    fetchProducts();
     fetchAds();
   }, []);
 
@@ -63,9 +52,20 @@ export default function Marketplace() {
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
 
+  // ✅ Function to Start a Chat
+  const startChat = (sellerId: string) => {
+    if (!user) {
+      alert("Please log in to start a chat.");
+      return;
+    }
+    const chatId = [user.id, sellerId].sort().join("_"); // ✅ Creates a consistent unique ID
+    setChatUser(chatId);
+  };
+  
+
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
+      {/* Sidebar with Filters */}
       <aside className="w-64 p-4 border-r bg-white">
         <h2 className="text-xl font-semibold mb-4">Marketplace</h2>
         <Input
@@ -114,10 +114,10 @@ export default function Marketplace() {
         <h1 className="text-2xl font-bold mb-6">Today's Picks</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredAds.map((item) => (
-            <Card key={item._id} className="flex flex-col">
+            <Card key={item._id} className="flex flex-col border shadow-sm">
               <Image
                 src={item.image}
-                alt={item.name}
+                alt={item.name || "Product image"}
                 width={400}
                 height={300}
                 className="w-full h-40 object-cover rounded-t"
@@ -138,11 +138,33 @@ export default function Marketplace() {
                     View Product
                   </Button>
                 </Link>
+
+                {/* ✅ Chat Button - Now correctly filters for the actual seller */}
+                {item.seller && user?.id === item.seller ? (
+                  <p className="text-gray-500 text-center text-sm mt-2">
+                    You are the seller
+                  </p>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => startChat(item.seller)}
+                  >
+                    Chat with Seller
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
       </main>
+
+      {/* ✅ Embedded Chat UI */}
+      {chatUser && (
+        <aside className="w-1/3 p-4 border-l bg-white">
+          <ChatComponent chatId={chatUser} />
+        </aside>
+      )}
     </div>
   );
 }

@@ -29,6 +29,7 @@ export default function Marketplace() {
         const data = await res.json();
         setAds(data);
         setFilteredAds(data);
+        console.log(data); // console.log the data to see what it looks like
       } catch (error) {
         console.error("Error fetching ads:", error);
       }
@@ -39,16 +40,20 @@ export default function Marketplace() {
   useEffect(() => {
     let filtered = [...ads];
     if (category) filtered = filtered.filter((ad) => ad.category === category);
-    if (condition) filtered = filtered.filter((ad) => ad.condition === condition);
-    if (location) filtered = filtered.filter((ad) =>
-      (ad.location?.toLowerCase() || "").includes(location.toLowerCase())  // Ensure location is used here
-    );
-    if (searchQuery) filtered = filtered.filter((ad) =>
-      (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())  // Filter by title (name)
-    );
+    if (condition)
+      filtered = filtered.filter((ad) => ad.condition === condition);
+    if (location)
+      filtered = filtered.filter(
+        (ad) =>
+          (ad.location?.toLowerCase() || "").includes(location.toLowerCase()) // Ensure location is used here
+      );
+    if (searchQuery)
+      filtered = filtered.filter(
+        (ad) =>
+          (ad.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) // Filter by title (name)
+      );
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
-  
 
   const startChat = (sellerId: string) => {
     if (sellerId) {
@@ -117,7 +122,10 @@ export default function Marketplace() {
         <h1 className="text-2xl font-bold mb-6">Today's Picks</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredAds.map((item) => (
-            <Card key={item._id} className="flex flex-col border shadow-sm rounded-lg overflow-hidden">
+            <Card
+              key={item._id}
+              className="flex flex-col border shadow-sm rounded-lg overflow-hidden"
+            >
               <div className="relative w-full h-48">
                 <Image
                   src={item.image}
@@ -128,22 +136,31 @@ export default function Marketplace() {
                 />
               </div>
               <CardContent className="p-4 flex flex-col flex-grow justify-between">
-                <h3 className="font-semibold text-lg mb-1 truncate">{item.name}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+                <h3 className="font-semibold text-lg mb-1 truncate">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-500 line-clamp-2">
+                  {item.description}
+                </p>
                 <p className="text-blue-700 font-bold mt-1">${item.price}</p>
-                {item.location && <p className="text-sm text-gray-500">📍 {item.location}</p>}
+                {item.location && (
+                  <p className="text-sm text-gray-500">📍 {item.location}</p>
+                )}
                 <Link href={`/products/${item._id}`}>
-                  <Button variant="default" className="w-full">
+                  <Button variant="default" className="w-full" disabled>
                     View Product
                   </Button>
                 </Link>
                 {item.seller && user?.id === item.seller ? (
-                  <p className="text-gray-500 text-center text-sm mt-2">You are the seller</p>
+                  <p className="text-gray-500 text-center text-sm mt-2">
+                    You are the seller
+                  </p>
                 ) : (
                   <Button
                     variant="outline"
                     className="w-full mt-2"
                     onClick={() => startChat(item.seller)}
+                    disabled
                   >
                     Chat with Seller
                   </Button>

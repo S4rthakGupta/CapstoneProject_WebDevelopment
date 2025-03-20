@@ -54,8 +54,7 @@ export default function Marketplace() {
   // Function to handle starting a chat
   const startChat = (sellerId: string) => {
     if (sellerId) {
-      // Log the sellerId for debugging purposes
-      console.log("Starting chat with seller:", sellerId);
+      // Navigate to the dynamic chat page
       router.push(`/messenger/${sellerId}`);
     } else {
       console.error("Seller ID is not defined!");

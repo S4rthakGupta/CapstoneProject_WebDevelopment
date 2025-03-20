@@ -1,4 +1,3 @@
-"use client";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import {
@@ -26,19 +25,17 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("");  // Ensure location is set
   const [isLoading, setIsLoading] = useState(false);
 
   const { user } = useUser();
 
-  // ✅ Handle File Selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setImageFile(event.target.files[0]);
     }
   };
 
-  // ✅ Handle Form Submission
   const handleSubmit = async () => {
     if (!user) {
       alert("Please login to post an ad!");
@@ -48,7 +45,6 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
     setIsLoading(true);
     let uploadedImageUrl = "";
 
-    // ✅ Upload image if selected
     if (imageFile) {
       const formData = new FormData();
       formData.append("file", imageFile);
@@ -72,7 +68,6 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
       }
     }
 
-    // ✅ Construct new Ad object
     const newAd = {
       title,
       description,
@@ -80,11 +75,10 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
       image: uploadedImageUrl,
       category,
       condition,
-      location,
-      username: user.fullName, // Save user's name
+      location,  // Include location in the ad object
+      username: user.fullName,
     };
 
-    // ✅ Send Ad data to backend
     try {
       const response = await fetch("/api/ads", {
         method: "POST",
@@ -99,14 +93,13 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
       alert("Ad posted successfully!");
       onAdCreated();
 
-      // ✅ Reset form fields
       setTitle("");
       setDescription("");
       setPrice("");
       setImageFile(null);
       setCategory("");
       setCondition("");
-      setLocation("");
+      setLocation("");  // Reset location after form submission
     } catch (error) {
       alert(error.message);
     } finally {
@@ -124,7 +117,6 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
           <DialogTitle>Create a New Listing</DialogTitle>
         </DialogHeader>
 
-        {/* ✅ Input Fields */}
         <Input
           placeholder="Product Title"
           value={title}
@@ -142,7 +134,6 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
           onChange={(e) => setPrice(e.target.value)}
         />
 
-        {/* ✅ Category Selection */}
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
             <SelectValue placeholder="Select Category" />
@@ -156,7 +147,6 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
           </SelectContent>
         </Select>
 
-        {/* ✅ Condition Selection */}
         <Select value={condition} onValueChange={setCondition}>
           <SelectTrigger>
             <SelectValue placeholder="Select Condition" />
@@ -169,14 +159,12 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
           </SelectContent>
         </Select>
 
-        {/* ✅ Location Input */}
         <Input
           placeholder="Location"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={(e) => setLocation(e.target.value)}  // Ensure location is captured
         />
 
-        {/* ✅ File Upload */}
         <input
           type="file"
           onChange={handleFileChange}
@@ -185,7 +173,6 @@ export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => voi
           className="mt-2"
         />
 
-        {/* ✅ Submit Button */}
         <Button
           onClick={handleSubmit}
           disabled={isLoading}

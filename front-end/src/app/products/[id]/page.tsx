@@ -2,18 +2,11 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ProductDetailPage({ params }: { params: { id: string } }) {
   // Fetch product data from API
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${params.id}`,
-    {
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${params.id}`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) return notFound();
 
@@ -27,8 +20,9 @@ export default async function ProductDetailPage({
           <Image
             src={product.image}
             alt={product.name}
-            fill
-            className="object-cover rounded-xl shadow-md"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-xl shadow-md"
           />
         </div>
       </div>

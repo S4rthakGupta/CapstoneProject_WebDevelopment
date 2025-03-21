@@ -1,5 +1,5 @@
-"use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -10,25 +10,31 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { useUser } from "@clerk/nextjs";
-
-export default function CreateAdDialog({
-  onAdCreated,
-}: {
-  onAdCreated: () => void;
-}) {
+export default function CreateAdDialog({ onAdCreated }: { onAdCreated: () => void }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [location, setLocation] = useState("");  // Ensure location is set
   const [isLoading, setIsLoading] = useState(false);
 
   const { user } = useUser();
+=========
+  const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [location, setLocation] = useState("");
+>>>>>>>>> Temporary merge branch 2
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -45,60 +51,66 @@ export default function CreateAdDialog({
     setIsLoading(true);
     let uploadedImageUrl = "";
 
-    // Step 1: Upload image if available
     if (imageFile) {
       const formData = new FormData();
       formData.append("file", imageFile);
 
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!uploadRes.ok) {
-        alert("Image upload failed.");
+        if (!uploadRes.ok) {
+          throw new Error("Image upload failed.");
+        }
+
+        const uploadData = await uploadRes.json();
+        uploadedImageUrl = uploadData.url;
+      } catch (error) {
+        alert(error.message);
         setIsLoading(false);
         return;
       }
-
-      const uploadData = await uploadRes.json();
-      uploadedImageUrl = uploadData.url;
     }
 
     // Step 2: Post the ad to MongoDB
     const newAd = {
-      title, // corrected name to titleq - might need to change to name
+      title,q - might need to change to name
       description,
       price,
       image: uploadedImageUrl,
       category,
       condition,
-      location,
+      location,  // Include location in the ad object
       username: user.fullName,
     };
 
-    const response = await fetch("/api/ads", {
-      method: "POST",
-      body: JSON.stringify(newAd),
-      headers: { "Content-Type": "application/json" },
-    });
+    try {
+      const response = await fetch("/api/ads", {
+        method: "POST",
+        body: JSON.stringify(newAd),
+        headers: { "Content-Type": "application/json" },
+      });
 
-    setIsLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to create ad.");
+      }
 
-    if (response.ok) {
       alert("Ad posted successfully!");
-      onAdCreated(); // Refresh or re-fetch ads
-      // Reset form
+      onAdCreated();
+
       setTitle("");
       setDescription("");
       setPrice("");
       setImageFile(null);
-      setImageUrl("");
       setCategory("");
       setCondition("");
-      setLocation("");
-    } else {
-      alert("Failed to create ad.");
+      setLocation("");  // Reset location after form submission
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -116,20 +128,17 @@ export default function CreateAdDialog({
           placeholder="Product Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          disabled={isLoading}
         />
         <Textarea
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          disabled={isLoading}
         />
         <Input
           placeholder="Price ($)"
           type="number"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          disabled={isLoading}
         />
 
         <Select value={category} onValueChange={setCategory}>
@@ -157,12 +166,22 @@ export default function CreateAdDialog({
           </SelectContent>
         </Select>
 
-        <Input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
+        <Input
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}  // Ensure location is captured
+        />
 
         <input
+
           type="file"
+
           onChange={handleFileChange}
+
           accept="image/*"
+          disabled={isLoading}
+          className="mt-2"
+
           disabled={isLoading}
           className="mt-2"
         />

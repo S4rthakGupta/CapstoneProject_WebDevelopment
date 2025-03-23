@@ -56,6 +56,7 @@ export default function Marketplace() {
   }, [ads, category, condition, location, searchQuery]);
 
   const startChat = (sellerId: string) => {
+
     if (sellerId) {
       router.push(`/messenger/${sellerId}`);
     } else {
@@ -151,7 +152,7 @@ export default function Marketplace() {
                     View Product
                   </Button>
                 </Link>
-                {item.seller && user?.id === item.seller ? (
+                {item.userId && user?.id === item.userId ? (
                   <p className="text-gray-500 text-center text-sm mt-2">
                     You are the seller
                   </p>
@@ -159,12 +160,12 @@ export default function Marketplace() {
                   <Button
                     variant="outline"
                     className="w-full mt-2"
-                    onClick={() => startChat(item.seller)}
-                    disabled
+                    onClick={() => startChat(item.userId)}
                   >
                     Chat with Seller
                   </Button>
                 )}
+
               </CardContent>
             </Card>
           ))}

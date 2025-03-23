@@ -1,159 +1,84 @@
-// src/pages/marketplace/page.tsx
+// src/app/messenger/[chatId]/page.tsx
 
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import CreateAdDialog from "@/components/ui/CreateAdDialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSocket } from "@/lib/useSocket";
 
-export default function Marketplace() {
+export default function ChatPage() {
   const { user } = useUser();
-  const router = useRouter();
-  const [ads, setAds] = useState<any[]>([]);
-  const [filteredAds, setFilteredAds] = useState<any[]>([]);
+  const { chatId } = useParams(); // dynamic route param from URL
+  const socketRef = useSocket();
 
-  const [category, setCategory] = useState("");
-  const [condition, setCondition] = useState("");
-  const [location, setLocation] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState("");
 
+  // Join the room
   useEffect(() => {
-    async function fetchAds() {
-      try {
-        const res = await fetch("/api/ads");
-        if (!res.ok) throw new Error("Failed to fetch ads");
-        const data = await res.json();
-        setAds(data);
-        setFilteredAds(data);
-      } catch (error) {
-        console.error("Error fetching ads:", error);
-      }
+    if (socketRef.current && user?.id && chatId) {
+      socketRef.current.emit("join_room", chatId); // room = sellerId
     }
-    fetchAds();
-  }, []);
+  }, [socketRef.current, user?.id, chatId]);
 
+  // Receive messages
   useEffect(() => {
-    let filtered = [...ads];
-    if (category) filtered = filtered.filter((ad) => ad.category === category);
-    if (condition) filtered = filtered.filter((ad) => ad.condition === condition);
-    if (location) filtered = filtered.filter((ad) =>
-      (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
-    );
-    if (searchQuery) filtered = filtered.filter((ad) =>
-      (ad.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-    );
-    setFilteredAds(filtered);
-  }, [ads, category, condition, location, searchQuery]);
+    if (!socketRef.current) return;
 
-  // Function to handle starting a chat
-  const startChat = (sellerId: string) => {
-    if (sellerId) {
-      // Navigate to the dynamic chat page
-      router.push(`/messenger/${sellerId}`);
-    } else {
-      console.error("Seller ID is not defined!");
-    }
+    const socket = socketRef.current;
+
+    socket.on("receive_message", (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+
+    return () => {
+      socket.off("receive_message");
+    };
+  }, [socketRef.current]);
+
+  const sendMessage = () => {
+    if (!newMessage.trim()) return;
+
+    const messagePayload = {
+      content: newMessage,
+      sender: user?.id,
+      room: chatId,
+    };
+
+    socketRef.current?.emit("send_message", messagePayload);
+    setMessages((prev) => [...prev, messagePayload]);
+    setNewMessage("");
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar with Filters */}
-      <aside className="w-64 p-4 border-r bg-white">
-        <h2 className="text-xl font-semibold mb-4">Marketplace</h2>
-        <Input
-          placeholder="Search Marketplace"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4"
-        />
-        <label className="text-sm">Category</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full mb-4 border rounded px-2 py-1"
-        >
-          <option value="">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Furniture">Furniture</option>
-          <option value="Books">Books</option>
-          <option value="Other">Other</option>
-        </select>
-        <label className="text-sm">Condition</label>
-        <select
-          value={condition}
-          onChange={(e) => setCondition(e.target.value)}
-          className="w-full mb-4 border rounded px-2 py-1"
-        >
-          <option value="">All Conditions</option>
-          <option value="New">New</option>
-          <option value="Used - Like New">Used - Like New</option>
-          <option value="Used - Good">Used - Good</option>
-          <option value="Used - Fair">Used - Fair</option>
-        </select>
-        <label className="text-sm">Location</label>
-        <Input
-          placeholder="Filter by Location..."
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="mb-4"
-        />
-        <CreateAdDialog onAdCreated={() => window.location.reload()} />
-      </aside>
+    <div className="flex flex-col h-screen p-4">
+      <div className="flex-1 overflow-y-auto mb-4 space-y-2">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`p-2 rounded-lg max-w-xs ${msg.sender === user?.id ? "bg-blue-500 text-white self-end ml-auto" : "bg-gray-200 text-black self-start"
+              }`}
+          >
+            {msg.content}
+          </div>
+        ))}
+      </div>
 
-      {/* Main Grid */}
-      <main className="flex-1 p-6 bg-gray-100">
-        <h1 className="text-2xl font-bold mb-6">Today's Picks</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredAds.map((item) => (
-            <Card key={item._id} className="flex flex-col border shadow-sm">
-              <Image
-                src={item.image}
-                alt={item.name || "Product image"}
-                width={400}
-                height={300}
-                className="w-full h-40 object-cover rounded-t"
-              />
-              <CardContent className="p-4 flex flex-col flex-grow justify-between">
-                <h3 className="font-semibold text-lg mb-1 truncate">
-                  {item.name}
-                </h3>
-                <p className="text-sm text-gray-500 line-clamp-2">
-                  {item.description}
-                </p>
-                <p className="text-blue-700 font-bold mt-1">${item.price}</p>
-                {item.location && (
-                  <p className="text-sm text-gray-500">📍 {item.location}</p>
-                )}
-                <Link href={`/products/${item._id}`}>
-                  <Button variant="default" className="w-full">
-                    View Product
-                  </Button>
-                </Link>
-                {item.seller && user?.id === item.seller ? (
-                  <p className="text-gray-500 text-center text-sm mt-2">
-                    You are the seller
-                  </p>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="w-full mt-2"
-                    onClick={() => startChat(item.seller)} // Ensure sellerId is passed here
-                  >
-                    Chat with Seller
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </main>
+      <div className="flex gap-2">
+        <input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          className="flex-1 p-2 border rounded"
+          placeholder="Type a message..."
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 }

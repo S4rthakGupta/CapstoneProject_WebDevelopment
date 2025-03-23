@@ -56,13 +56,13 @@ export default function Marketplace() {
   }, [ads, category, condition, location, searchQuery]);
 
   const startChat = (sellerId: string) => {
-
     if (sellerId) {
       router.push(`/messenger/${sellerId}`);
     } else {
       console.error("Seller ID is not defined!");
     }
   };
+
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
@@ -164,6 +164,7 @@ export default function Marketplace() {
                   >
                     Chat with Seller
                   </Button>
+
                 )}
 
               </CardContent>

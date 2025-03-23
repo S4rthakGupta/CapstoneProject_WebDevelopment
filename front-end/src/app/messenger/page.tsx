@@ -2,91 +2,60 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/router";
-import { useSocket } from "@/lib/useSocket";
+import Link from "next/link";
 
-const MessengerPage = () => {
+interface Chat {
+  _id: string;
+  participants: string[];
+}
+
+export default function InboxPage() {
   const { user } = useUser();
-  const router = useRouter();
-  const socketRef = useSocket();
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-
-  // Get chatId from query param
   useEffect(() => {
-    if (router.query.chatId) {
-      setChatId(router.query.chatId as string);
-    }
-  }, [router.query.chatId]);
+    if (!user) return;
 
-  // Join chat room
-  useEffect(() => {
-    if (socketRef.current && chatId) {
-      socketRef.current.emit("join_room", chatId);
-    }
-  }, [socketRef.current, chatId]);
-
-  // Listen for messages
-  useEffect(() => {
-    if (!socketRef.current) return;
-
-    const socket = socketRef.current;
-
-    socket.on("receive_message", (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
-
-    return () => {
-      socket.off("receive_message");
-    };
-  }, [socketRef.current]);
-
-  const sendMessage = () => {
-    if (!newMessage.trim() || !chatId) return;
-
-    const messagePayload = {
-      content: newMessage,
-      sender: user?.id,
-      room: chatId,
+    const fetchChats = async () => {
+      try {
+        const res = await fetch(`/api/chats/${user.id}`);
+        const data = await res.json();
+        setChats(data.chats || []);
+      } catch (err) {
+        console.error("Failed to fetch inbox chats:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    socketRef.current?.emit("send_message", messagePayload);
-    setMessages((prev) => [...prev, messagePayload]);
-    setNewMessage("");
-  };
+    fetchChats();
+  }, [user]);
 
   return (
-    <div className="flex flex-col h-screen p-4">
-      <div className="flex-1 overflow-y-auto mb-4 space-y-2">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`p-2 rounded-lg max-w-xs ${msg.sender === user?.id ? "bg-blue-500 text-white self-end ml-auto" : "bg-gray-200 text-black self-start"
-              }`}
-          >
-            {msg.content}
-          </div>
-        ))}
-      </div>
-
-      <div className="flex gap-2">
-        <input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-1 p-2 border rounded"
-          placeholder="Type a message..."
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Send
-        </button>
-      </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Inbox</h1>
+      {loading ? (
+        <p>Loading chats...</p>
+      ) : chats.length === 0 ? (
+        <p>No conversations yet.</p>
+      ) : (
+        <ul className="space-y-4">
+          {chats.map((chat) => {
+            const otherUser = chat.participants.find((id) => id !== user?.id);
+            return (
+              <li key={chat._id}>
+                <Link
+                  href={`/messenger/${otherUser}`}
+                  className="block p-4 border rounded hover:bg-gray-100 transition"
+                >
+                  Chat with <span className="font-semibold">{otherUser}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
-};
-
-export default MessengerPage;
+}

@@ -41,9 +41,8 @@ export default function Navbar() {
 
       {/* Navigation Links */}
       <div
-        className={`absolute top-16 left-0 w-full bg-blue-700 md:static md:flex md:space-x-6 md:bg-transparent ${
-          isMenuOpen ? "block" : "hidden"
-        } md:block transform md:transform-none transition-all duration-300 ease-in-out`}
+        className={`absolute top-16 left-0 w-full bg-blue-700 md:static md:flex md:space-x-6 md:bg-transparent ${isMenuOpen ? "block" : "hidden"
+          } md:block transform md:transform-none transition-all duration-300 ease-in-out`}
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-end space-y-4 md:space-y-0 md:space-x-6 p-6 md:p-4 md:ml-auto">
           <Link
@@ -58,6 +57,10 @@ export default function Navbar() {
           >
             Marketplace
           </Link>
+          <Link href="/messenger" className="hover:underline">
+            Inbox
+          </Link>
+
           <Link
             href="/seller"
             className="hover:text-gray-200 transition duration-300"

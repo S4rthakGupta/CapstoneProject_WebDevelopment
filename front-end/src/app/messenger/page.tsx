@@ -32,6 +32,7 @@ export default function InboxPage() {
     fetchChats();
   }, [user]);
 
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Inbox</h1>

@@ -11,6 +11,7 @@ export async function GET(
 
         const userId = context.params.userId;
 
+        // Find all chats for the user
         const chats = await Chat.find({ participants: userId });
 
         return NextResponse.json({ chats });
@@ -19,3 +20,4 @@ export async function GET(
         return NextResponse.json({ error: "Failed to load chats" }, { status: 500 });
     }
 }
+

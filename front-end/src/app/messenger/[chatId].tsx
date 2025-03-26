@@ -1,5 +1,3 @@
-// src/app/messenger/[chatId]/page.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,20 +7,38 @@ import { useSocket } from "@/lib/useSocket";
 
 export default function ChatPage() {
   const { user } = useUser();
-  const { chatId } = useParams(); // dynamic route param from URL
+  const { chatId } = useParams(); // Getting chatId from the URL (dynamic route param)
   const socketRef = useSocket();
 
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
 
-  // Join the room
+  // Ensure room join logic
   useEffect(() => {
     if (socketRef.current && user?.id && chatId) {
-      socketRef.current.emit("join_room", chatId); // room = sellerId
+      // Join the correct room (chatId is the unique identifier of the chat)
+      socketRef.current.emit("join_room", chatId);
     }
   }, [socketRef.current, user?.id, chatId]);
 
-  // Receive messages
+  // Load previous messages
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const res = await fetch(`/api/messages/${chatId}`);
+        const data = await res.json();
+        if (data?.messages) {
+          setMessages(data.messages);
+        }
+      } catch (err) {
+        console.error("Failed to load messages:", err);
+      }
+    };
+
+    if (chatId) loadMessages(); // Load messages when the chatId is available
+  }, [chatId]);
+
+  // Listen for incoming messages via socket
   useEffect(() => {
     if (!socketRef.current) return;
 
@@ -33,12 +49,13 @@ export default function ChatPage() {
     });
 
     return () => {
-      socket.off("receive_message");
+      socket.off("receive_message"); // Cleanup socket event listener on unmount
     };
   }, [socketRef.current]);
 
+  // Send a new message
   const sendMessage = () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !chatId) return;
 
     const messagePayload = {
       content: newMessage,
@@ -46,9 +63,9 @@ export default function ChatPage() {
       room: chatId,
     };
 
-    socketRef.current?.emit("send_message", messagePayload);
-    setMessages((prev) => [...prev, messagePayload]);
-    setNewMessage("");
+    socketRef.current?.emit("send_message", messagePayload); // Emit the message to the server
+    setMessages((prev) => [...prev, messagePayload]); // Update the local state with the new message
+    setNewMessage(""); // Reset the message input field
   };
 
   return (
@@ -57,10 +74,12 @@ export default function ChatPage() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-2 rounded-lg max-w-xs ${msg.sender === user?.id ? "bg-blue-500 text-white self-end ml-auto" : "bg-gray-200 text-black self-start"
+            className={`p-2 rounded-lg max-w-xs ${msg.senderId === user?.id
+              ? "bg-blue-500 text-white self-end ml-auto"
+              : "bg-gray-200 text-black self-start"
               }`}
           >
-            {msg.content}
+            {msg.message || msg.content}
           </div>
         ))}
       </div>

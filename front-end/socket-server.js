@@ -9,7 +9,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose
     .connect(MONGODB_URI, {
-        dbName: "campus-synergy", // change if different
+        dbName: "campusynergy", // change if different
     })
     .then(() => console.log("✅ MongoDB connected"))
     .catch((err) => console.error("❌ MongoDB connection error:", err));
@@ -25,14 +25,17 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     console.log("✅ A user connected:", socket.id);
 
+    // Join room - ensure room is correctly formed with userA_userB
     socket.on("join_room", (room) => {
+        // Split room by underscore to extract userA and userB
+        const [userA, userB] = room.split("_");
+        console.log(`📦 ${socket.id} joining room ${room} (userA: ${userA}, userB: ${userB})`);
         socket.join(room);
-        console.log(`📦 ${socket.id} joined room ${room}`);
     });
 
     socket.on("send_message", async (data) => {
         const { room, content, sender } = data;
-        const [userA, userB] = room.split("_");
+        const [userA, userB] = room.split("_");  // Split room name to get user IDs (buyer and seller)
         const receiver = sender === userA ? userB : userA;
 
         const message = {
@@ -43,6 +46,7 @@ io.on("connection", (socket) => {
         };
 
         try {
+            // Ensure we are saving messages between the correct pair of users
             let chat = await Chat.findOne({ participants: { $all: [userA, userB] } });
 
             if (!chat) {
@@ -54,18 +58,23 @@ io.on("connection", (socket) => {
                 chat.messages.push(message);
             }
 
-            await chat.save();
+            await chat.save();  // Save message to the correct chat document
 
+            // Emit message to the room
             io.to(room).emit("receive_message", {
                 content,
                 sender,
                 timestamp: message.timestamp,
             });
+
+            console.log("Message saved successfully between", userA, "and", userB);
         } catch (err) {
             console.error("❌ Error saving message:", err);
         }
     });
 
+
+    // When the user disconnects
     socket.on("disconnect", () => {
         console.log("❌ A user disconnected:", socket.id);
     });

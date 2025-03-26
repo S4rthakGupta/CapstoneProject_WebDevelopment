@@ -63,7 +63,6 @@ export default function ChatPage() {
         };
 
         socketRef.current?.emit("send_message", messagePayload);
-        setMessages((prev) => [...prev, messagePayload]);
         setNewMessage("");
     };
 
@@ -74,8 +73,8 @@ export default function ChatPage() {
                     <div
                         key={i}
                         className={`p-2 rounded-lg max-w-xs ${msg.senderId === user?.id
-                                ? "bg-blue-500 text-white self-end ml-auto"
-                                : "bg-gray-200 text-black self-start"
+                            ? "bg-blue-500 text-white self-end ml-auto"
+                            : "bg-gray-200 text-black self-start"
                             }`}
                     >
                         {msg.message || msg.content}

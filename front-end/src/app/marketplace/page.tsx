@@ -11,11 +11,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Marketplace() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser(); // ✅ Include isLoaded
   const router = useRouter();
+
   const [ads, setAds] = useState<any[]>([]);
   const [filteredAds, setFilteredAds] = useState<any[]>([]);
-
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [location, setLocation] = useState("");
@@ -29,7 +29,6 @@ export default function Marketplace() {
         const data = await res.json();
         setAds(data);
         setFilteredAds(data);
-        console.log(data); // console.log the data to see what it looks like
       } catch (error) {
         console.error("Error fetching ads:", error);
       }
@@ -40,38 +39,38 @@ export default function Marketplace() {
   useEffect(() => {
     let filtered = [...ads];
     if (category) filtered = filtered.filter((ad) => ad.category === category);
-    if (condition)
-      filtered = filtered.filter((ad) => ad.condition === condition);
+    if (condition) filtered = filtered.filter((ad) => ad.condition === condition);
     if (location)
-      filtered = filtered.filter(
-        (ad) =>
-          (ad.location?.toLowerCase() || "").includes(location.toLowerCase()) // Ensure location is used here
+      filtered = filtered.filter((ad) =>
+        (ad.location?.toLowerCase() || "").includes(location.toLowerCase())
       );
     if (searchQuery)
-      filtered = filtered.filter(
-        (ad) =>
-          (ad.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) // Filter by title (name)
+      filtered = filtered.filter((ad) =>
+        (ad.title?.toLowerCase() || "").includes(searchQuery.toLowerCase())
       );
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
 
   const startChat = (sellerId: string) => {
-    if (user && sellerId) {
-      // Generate the room name: buyer's ID (user.id) + seller's ID (sellerId)
-      const room = `${user.id}_${sellerId}`;
+    if (!isLoaded) {
+      console.warn("🕒 Clerk is still loading...");
+      return;
+    }
 
-      // Use the router to push the user to the chat page with the room ID
+    if (user?.id && sellerId) {
+      const room = `${user.id}___${sellerId}`;
       router.push(`/messenger/${room}`);
     } else {
-      console.error("User or Seller ID not found");
+      console.error("❌ User or Seller ID is missing");
     }
   };
 
-
+  if (!isLoaded) {
+    return <div className="p-6 text-center">Loading user...</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
-      {/* Sidebar with Filters */}
       <aside className="w-full lg:w-64 p-4 border-b lg:border-r bg-white">
         <h2 className="text-xl font-semibold mb-4">Marketplace</h2>
         <Input
@@ -123,31 +122,23 @@ export default function Marketplace() {
         <CreateAdDialog onAdCreated={() => window.location.reload()} />
       </aside>
 
-      {/* Main Grid */}
       <main className="flex-1 p-6 bg-gray-100">
         <h1 className="text-2xl font-bold mb-6">Today's Picks</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredAds.map((item) => (
-            <Card
-              key={item._id}
-              className="flex flex-col border shadow-sm rounded-lg overflow-hidden"
-            >
+            <Card key={item._id} className="flex flex-col border shadow-sm rounded-lg overflow-hidden">
               <div className="relative w-full h-48">
                 <Image
                   src={item.image}
-                  alt={item.name || "Product image"}
+                  alt={item.title || "Product image"}
                   layout="fill"
                   objectFit="cover"
                   className="rounded-t-lg"
                 />
               </div>
               <CardContent className="p-4 flex flex-col flex-grow justify-between">
-                <h3 className="font-semibold text-lg mb-1 truncate">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-gray-500 line-clamp-2">
-                  {item.description}
-                </p>
+                <h3 className="font-semibold text-lg mb-1 truncate">{item.title}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
                 <p className="text-blue-700 font-bold mt-1">${item.price}</p>
                 {item.location && (
                   <p className="text-sm text-gray-500">📍 {item.location}</p>
@@ -165,14 +156,11 @@ export default function Marketplace() {
                   <Button
                     variant="outline"
                     className="w-full mt-2"
-                    onClick={() => startChat(item.userId)} // Pass the seller's userId
+                    onClick={() => startChat(item.userId)}
                   >
                     Chat with Seller
                   </Button>
-
-
                 )}
-
               </CardContent>
             </Card>
           ))}

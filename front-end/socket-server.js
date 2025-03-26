@@ -28,14 +28,14 @@ io.on("connection", (socket) => {
     // Join room - ensure room is correctly formed with userA_userB
     socket.on("join_room", (room) => {
         // Split room by underscore to extract userA and userB
-        const [userA, userB] = room.split("_");
+        const [userA, userB] = room.split("___");
         console.log(`📦 ${socket.id} joining room ${room} (userA: ${userA}, userB: ${userB})`);
         socket.join(room);
     });
 
     socket.on("send_message", async (data) => {
         const { room, content, sender } = data;
-        const [userA, userB] = room.split("_");  // Split room name to get user IDs (buyer and seller)
+        const [userA, userB] = room.split("___");  // Split room name to get user IDs (buyer and seller)
         const receiver = sender === userA ? userB : userA;
 
         const message = {

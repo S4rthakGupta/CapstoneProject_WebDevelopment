@@ -56,12 +56,17 @@ export default function Marketplace() {
   }, [ads, category, condition, location, searchQuery]);
 
   const startChat = (sellerId: string) => {
-    if (sellerId) {
-      router.push(`/messenger/${sellerId}`);
+    if (user && sellerId) {
+      // Generate the room name: buyer's ID (user.id) + seller's ID (sellerId)
+      const room = `${user.id}_${sellerId}`;
+
+      // Use the router to push the user to the chat page with the room ID
+      router.push(`/messenger/${room}`);
     } else {
-      console.error("Seller ID is not defined!");
+      console.error("User or Seller ID not found");
     }
   };
+
 
 
   return (
@@ -160,10 +165,11 @@ export default function Marketplace() {
                   <Button
                     variant="outline"
                     className="w-full mt-2"
-                    onClick={() => startChat(item.userId)}
+                    onClick={() => startChat(item.userId)} // Pass the seller's userId
                   >
                     Chat with Seller
                   </Button>
+
 
                 )}
 

@@ -70,7 +70,7 @@ export default function Marketplace() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
+    <div className="flex min-h-screen flex-col lg:flex-row ">
       <aside className="w-full lg:w-64 p-4 border-b lg:border-r bg-white">
         <h2 className="text-xl font-semibold mb-4">Marketplace</h2>
         <Input

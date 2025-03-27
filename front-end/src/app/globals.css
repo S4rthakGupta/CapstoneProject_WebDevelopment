@@ -133,6 +133,30 @@ body {
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+.contrast {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.contrast a {
+  color: #00ffff !important;
+}
+
+.contrast h1,
+.contrast h2,
+.contrast h3,
+.contrast p,
+.contrast span {
+  color: #fff !important;
+}
+
+.contrast button {
+  background-color: #333 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

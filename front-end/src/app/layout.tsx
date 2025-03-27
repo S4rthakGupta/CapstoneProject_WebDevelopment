@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,10 +24,13 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
         >
+          <AccessibilityProvider>
           <Navbar />
           {/* Main content */}
           <main className="flex-grow">{children}</main>
           <Footer />
+          </AccessibilityProvider>
+
         </body>
       </html>
     </ClerkProvider>

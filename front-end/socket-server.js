@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: ".env.local" });
 const { Server } = require("socket.io");
 const http = require("http");
 const mongoose = require("mongoose");

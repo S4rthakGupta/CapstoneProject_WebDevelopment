@@ -15,7 +15,6 @@ const MessengerPage = () => {
   const [chatId, setChatId] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false); // New state to track client-side rendering
 
-  console.log("test command");
   
   useEffect(() => {
     setIsClient(true); // Set to true once the component is mounted on the client

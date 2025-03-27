@@ -12,8 +12,6 @@ export default async function SellerPage() {
 
   const ads = await AdModel.find({ userId: user.id }).sort({ createdAt: -1 }).lean();
 
-  console.log("test");
-  
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">My Listings</h1>

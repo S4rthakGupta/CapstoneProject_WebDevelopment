@@ -15,7 +15,10 @@ export async function GET(req: Request, context: { params: { chatId: string } })
 
         if (!chat) return NextResponse.json({ messages: [] });
 
-        return NextResponse.json({ messages: chat.messages });
+        return NextResponse.json({
+            messages: chat.messages,
+            productId: chat.productId, // ✅ ADD THIS
+        });
     } catch (err) {
         console.error("❌ Error fetching messages:", err);
         return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });

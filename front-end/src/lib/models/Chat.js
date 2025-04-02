@@ -8,7 +8,9 @@ const messageSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    productId: String, // ✅ NEW
 });
+
 
 const chatSchema = new mongoose.Schema({
     participants: [String],
@@ -16,6 +18,8 @@ const chatSchema = new mongoose.Schema({
         type: [messageSchema],
         default: [],
     },
+    productId: { type: String }, // ✅ ADD THIS
 });
+
 
 module.exports = mongoose.models.Chat || mongoose.model("Chat", chatSchema);

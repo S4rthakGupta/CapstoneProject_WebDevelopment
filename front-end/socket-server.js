@@ -34,16 +34,19 @@ io.on("connection", (socket) => {
     });
 
     socket.on("send_message", async (data) => {
-        const { room, content, sender } = data;
-        const [userA, userB] = room.split("___").sort();  // Split room name to get user IDs (buyer and seller)
+        const { room, content, sender, productId } = data;
+        const [userA, userB] = room.split("___").sort();
         const receiver = sender === userA ? userB : userA;
+
 
         const message = {
             senderId: sender,
             receiverId: receiver,
             message: content,
             timestamp: new Date(),
+            productId: data.productId || null, // ✅ Save with each message
         };
+
 
         try {
             // Ensure we are saving messages between the correct pair of users
@@ -53,10 +56,12 @@ io.on("connection", (socket) => {
                 chat = new Chat({
                     participants: [userA, userB],
                     messages: [message],
+                    productId: productId || null, // ✅ store it on first message
                 });
             } else {
                 chat.messages.push(message);
             }
+
 
             await chat.save();  // Save message to the correct chat document
 

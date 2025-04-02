@@ -51,7 +51,7 @@ export default function Marketplace() {
     setFilteredAds(filtered);
   }, [ads, category, condition, location, searchQuery]);
 
-  const startChat = (sellerId: string) => {
+  const startChat = (sellerId: string, productId: string) => {
     if (!isLoaded) {
       console.warn("🕒 Clerk is still loading...");
       return;
@@ -59,11 +59,13 @@ export default function Marketplace() {
 
     if (user?.id && sellerId) {
       const room = [user.id, sellerId].sort().join("___");
-      router.push(`/messenger/${room}`);
+      router.push(`/messenger/${room}?product=${productId}`); // ✅ FIXED: use productId
     } else {
       console.error("❌ User or Seller ID is missing");
     }
   };
+
+
 
   if (!isLoaded) {
     return <div className="p-6 text-center">Loading user...</div>;
@@ -156,7 +158,7 @@ export default function Marketplace() {
                   <Button
                     variant="outline"
                     className="w-full mt-2"
-                    onClick={() => startChat(item.userId)}
+                    onClick={() => startChat(item.userId, item._id)}
                   >
                     Chat with Seller
                   </Button>

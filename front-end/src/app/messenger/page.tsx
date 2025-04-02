@@ -44,10 +44,11 @@ export default function InboxPage() {
         <ul className="space-y-4">
           {chats.map((chat) => {
             const otherUser = chat.participants.find((id) => id !== user?.id);
+            const room = [user.id, otherUser].sort().join("___");
             return (
               <li key={chat._id}>
                 <Link
-                  href={`/messenger/${otherUser}`}
+                  href={`/messenger/${room}`}
                   className="block p-4 border rounded hover:bg-gray-100 transition"
                 >
                   Chat with <span className="font-semibold">{otherUser}</span>

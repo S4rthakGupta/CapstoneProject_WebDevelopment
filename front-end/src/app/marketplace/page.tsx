@@ -58,7 +58,7 @@ export default function Marketplace() {
     }
 
     if (user?.id && sellerId) {
-      const room = `${user.id}___${sellerId}`;
+      const room = [user.id, sellerId].sort().join("___");
       router.push(`/messenger/${room}`);
     } else {
       console.error("❌ User or Seller ID is missing");

@@ -6,11 +6,12 @@ export async function GET(req: Request, context: { params: { chatId: string } })
     try {
         await connectToDatabase();
 
-        const { chatId } = await context.params; // ✅ await this line
-
+        const { chatId } = context.params;
+        const ids = chatId.split("___").sort();
         const chat = await Chat.findOne({
-            participants: { $all: [chatId] },
+            participants: { $all: ids },
         });
+
 
         if (!chat) return NextResponse.json({ messages: [] });
 

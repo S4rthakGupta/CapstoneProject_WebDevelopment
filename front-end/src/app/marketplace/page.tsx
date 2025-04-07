@@ -21,6 +21,8 @@ export default function Marketplace() {
   const [location, setLocation] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  console.log("Test");
+  
   useEffect(() => {
     async function fetchAds() {
       try {

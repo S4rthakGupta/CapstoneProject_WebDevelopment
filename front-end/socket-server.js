@@ -28,22 +28,25 @@ io.on("connection", (socket) => {
     // Join room - ensure room is correctly formed with userA_userB
     socket.on("join_room", (room) => {
         // Split room by underscore to extract userA and userB
-        const [userA, userB] = room.split("___");
+        const [userA, userB] = room.split("___").sort();
         console.log(`📦 ${socket.id} joining room ${room} (userA: ${userA}, userB: ${userB})`);
         socket.join(room);
     });
 
     socket.on("send_message", async (data) => {
-        const { room, content, sender } = data;
-        const [userA, userB] = room.split("___");  // Split room name to get user IDs (buyer and seller)
+        const { room, content, sender, productId } = data;
+        const [userA, userB] = room.split("___").sort();
         const receiver = sender === userA ? userB : userA;
+
 
         const message = {
             senderId: sender,
             receiverId: receiver,
             message: content,
             timestamp: new Date(),
+            productId: data.productId || null, // ✅ Save with each message
         };
+
 
         try {
             // Ensure we are saving messages between the correct pair of users
@@ -53,10 +56,12 @@ io.on("connection", (socket) => {
                 chat = new Chat({
                     participants: [userA, userB],
                     messages: [message],
+                    productId: productId || null, // ✅ store it on first message
                 });
             } else {
                 chat.messages.push(message);
             }
+
 
             await chat.save();  // Save message to the correct chat document
 

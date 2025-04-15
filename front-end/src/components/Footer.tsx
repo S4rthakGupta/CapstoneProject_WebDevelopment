@@ -56,6 +56,7 @@
 
 import Link from "next/link";
 import { FaInstagram, FaLinkedin, FaGithub } from "react-icons/fa";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
@@ -63,9 +64,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 text-center sm:text-left">
         {/* Column 1: Logo */}
         <div>
-          <h2 className="text-2xl font-bold text-[#18206F] dark:text-[#92DCE5]">
-            CampusSynergy
-          </h2>
+          <Logo />
           <p className="text-sm text-muted-foreground mt-2">
             Built by students, for students.
           </p>

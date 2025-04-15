@@ -4,9 +4,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import { ProductProvider } from "@/context/ProductContext";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,24 +33,29 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <AccessibilityProvider>
-              {/* Navbar Logic */}
-              <SignedIn>
-                <Navbar />
-              </SignedIn>
-              <SignedOut>{!isPublicHomePage && <Navbar />}</SignedOut>
+            <ProductProvider>
+              {" "}
+              {/* Add ProductProvider here */}
+              <AccessibilityProvider>
+                {/* Navbar Logic */}
+                <SignedIn>
+                  <Navbar />
+                </SignedIn>
+                <SignedOut>{!isPublicHomePage && <Navbar />}</SignedOut>
 
-              {/* Main content */}
-              <main className="flex-grow">{children}</main>
+                {/* Main content */}
+                <main className="flex-grow">{children}</main>
 
-              {/* FOOTER Logic */}
-              <SignedIn>
-                <Footer />
-              </SignedIn>
-              <SignedOut>{!isPublicHomePage && <Footer />}</SignedOut>
-              {/* <Footer /> */}
-            </AccessibilityProvider>
+                {/* FOOTER Logic */}
+                <SignedIn>
+                  <Footer />
+                </SignedIn>
+                <SignedOut>{!isPublicHomePage && <Footer />}</SignedOut>
+                {/* <Footer /> */}
+              </AccessibilityProvider>
+            </ProductProvider>
           </ThemeProvider>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

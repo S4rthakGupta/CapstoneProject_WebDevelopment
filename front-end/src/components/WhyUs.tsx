@@ -33,7 +33,7 @@ export default function WhyUs() {
   return (
     <section id="why-us" className="py-2 bg-background text-foreground px-6">
       <div className="max-w-5xl mx-auto text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-[#18206F] dark:text-[#92DCE5]">
+        <h2 className="text-3xl md:text-4xl font-bold text-[#18206F]  dark:text-white">
           Why Choose CampusSynergy?
         </h2>
         <p className="mt-4 text-muted-foreground max-w-xl mx-auto">

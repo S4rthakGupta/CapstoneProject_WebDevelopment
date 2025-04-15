@@ -22,7 +22,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug text-[#5BC9D7] dark:text-[#fff] mb-2"
+                className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug text-[#5BC9D7] dark:text-[#5bc9d7] mb-2"
               >
                 Hello, {user?.firstName}! 🎉
               </motion.h3>
@@ -47,8 +47,8 @@ export default function HeroSection() {
           </p>
 
           <p className="text-lg text-muted-foreground mb-6 max-w-md mx-auto md:mx-0">
-            A trusted marketplace where students can buy and sell items within a
-            verified campus community.
+            A trusted marketplace where students can buy and sell items through
+            a verified campus community.
           </p>
           {isSignedIn && (
             <Link href="/marketplace">
@@ -62,7 +62,7 @@ export default function HeroSection() {
         {/* Illustration */}
         <div className="w-full md:w-1/2 flex justify-center">
           <Image
-            src="/images/image2.jpg"
+            src="/images/hero-img.png"
             alt="Student marketplace illustration"
             width={400}
             height={400}

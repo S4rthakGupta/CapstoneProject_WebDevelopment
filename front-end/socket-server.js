@@ -66,11 +66,8 @@ io.on("connection", (socket) => {
             await chat.save();  // Save message to the correct chat document
 
             // Emit message to the room
-            io.to(room).emit("receive_message", {
-                content,
-                sender,
-                timestamp: message.timestamp,
-            });
+            io.to(room).emit("receive_message", message);
+
 
             console.log("Message saved successfully between", userA, "and", userB);
         } catch (err) {

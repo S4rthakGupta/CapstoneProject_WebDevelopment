@@ -98,7 +98,8 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col h-screen p-4">
+        <div className="flex flex-col h-screen pt-16 p-4">
+
             {/* 💬 Message List */}
             <div className="flex-1 overflow-y-auto mb-4 space-y-3">
                 {messages.map((msg, i) => {
@@ -137,8 +138,8 @@ export default function ChatPage() {
 
                             <div
                                 className={`p-2 rounded-lg ${msg.senderId === user?.id
-                                        ? "bg-blue-500 text-white self-end ml-auto"
-                                        : "bg-gray-200 text-black self-start"
+                                    ? "bg-blue-500 text-white self-end ml-auto"
+                                    : "bg-gray-200 text-black self-start"
                                     }`}
                             >
                                 {msg.message || msg.content}
@@ -149,7 +150,7 @@ export default function ChatPage() {
             </div>
 
             {/* ✏️ Input */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 sticky bottom-0 bg-background p-2 border-t">
                 <input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}

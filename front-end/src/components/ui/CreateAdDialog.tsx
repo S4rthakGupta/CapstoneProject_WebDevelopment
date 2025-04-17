@@ -85,9 +85,11 @@ export default function CreateAdDialog({
       image: uploadedImageUrl,
       category,
       condition,
-      location, // Include location in the ad object
+      location,
       username: user.fullName,
+      userId: user.id, // ✅ This is the Clerk ID needed for chat/messaging
     };
+
 
     try {
       const response = await fetch("/api/ads", {

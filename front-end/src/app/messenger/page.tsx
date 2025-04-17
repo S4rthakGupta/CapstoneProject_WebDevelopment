@@ -9,10 +9,26 @@ interface Chat {
   participants: string[];
 }
 
+interface DisplayChat extends Chat {
+  otherUserId: string;
+  displayName: string;
+}
+
 export default function InboxPage() {
   const { user } = useUser();
-  const [chats, setChats] = useState<Chat[]>([]);
+  const [chats, setChats] = useState<DisplayChat[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchUserInfo = async (userId: string): Promise<string> => {
+    try {
+      const res = await fetch(`/api/userinfo/${userId}`);
+      const data = await res.json();
+      return data.email || data.name || userId;
+    } catch (err) {
+      console.warn("Failed to fetch user info:", err);
+      return userId;
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -21,7 +37,18 @@ export default function InboxPage() {
       try {
         const res = await fetch(`/api/chats/${user.id}`);
         const data = await res.json();
-        setChats(data.chats || []);
+        const rawChats: Chat[] = data.chats || [];
+
+        // Enrich chats with display name
+        const enrichedChats: DisplayChat[] = await Promise.all(
+          rawChats.map(async (chat) => {
+            const otherUserId = chat.participants.find((id) => id !== user.id)!;
+            const displayName = await fetchUserInfo(otherUserId);
+            return { ...chat, otherUserId, displayName };
+          })
+        );
+
+        setChats(enrichedChats);
       } catch (err) {
         console.error("Failed to fetch inbox chats:", err);
       } finally {
@@ -31,7 +58,6 @@ export default function InboxPage() {
 
     fetchChats();
   }, [user]);
-
 
   return (
     <div className="p-6">
@@ -43,15 +69,15 @@ export default function InboxPage() {
       ) : (
         <ul className="space-y-4">
           {chats.map((chat) => {
-            const otherUser = chat.participants.find((id) => id !== user?.id);
-            const room = [user.id, otherUser].sort().join("___");
+            const room = [user.id, chat.otherUserId].sort().join("___");
             return (
               <li key={chat._id}>
                 <Link
                   href={`/messenger/${room}`}
                   className="block p-4 border rounded hover:bg-gray-100 transition"
                 >
-                  Chat with <span className="font-semibold">{otherUser}</span>
+                  Chat with{" "}
+                  <span className="font-semibold">{chat.displayName}</span>
                 </Link>
               </li>
             );
